@@ -6,13 +6,13 @@ author:
   - "^2^UW-Madison and WDNR"
 date: "`r format(Sys.time(), '%Y-%B-%d')`"
 output: 
-  # word_document: default
-  # pdf_document:
-  #   fig_caption: yes
-  #   keep_tex: yes
-  #   latex_engine: pdflatex
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    latex_engine: pdflatex
   bookdown::html_document2:
     number_sections: false
+  # word_document: default
 fontsize: 11pt
 geometry: margin = 1in
 header-includes:
@@ -26,8 +26,10 @@ header-includes:
 - \usepackage{afterpage}
 - \usepackage{siunitx}
 - \usepackage{amsmath}
-# bibliography: baseline-isotopes.bib
-# csl: freshwater-biology.csl
+bibliography: baseline-isotopes.bib
+csl: freshwater-biology.csl
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -35,7 +37,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{css, echo=FALSE}
-h1, h4 {
+h1, h4.author, h4.date {
   text-align: center;
 }
 
@@ -43,6 +45,7 @@ h1 {
   font-weight: bold;
 }
 ```
+
 
 **Keywords**: 
 
@@ -83,7 +86,7 @@ We suggest that future investigators follow a similar trial and-error method to 
 
 ## Introduction
 
-Stable isotope analysis (SIA) is a commonly-used tool for making inferences about the trophic structure and flow of materials in food webs. Stable isotope ratios—typically of carbon (13C/12C, d13C) or nitrogen (15N/14N, d15N)—provide information on the materials assimilated by animals because of predictable changes in isotopic composition that occur in body tissues during elemental incorporation of diet items . With each trophic transfer, carbon isotope ratios change little which makes them useful for tracking energy pathways from basal resources and identifying the ultimate carbon source supporting consumers. In contrast, nitrogen isotope ratios change markedly and predictably with each trophic transfer, allowing for inference into species’ trophic positions in communities, as well quantification of whole-community food chain length (Post, 2002; Mccutchan et al., 2016; Pinzone et al., 2017).  
+Stable isotope analysis (SIA) is a commonly-used tool for making inferences about the trophic structure and flow of materials in food webs. Stable isotope ratios—typically of carbon (13C/12C, d13C) or nitrogen (15N/14N, d15N)—provide information on the materials assimilated by animals because of predictable changes in isotopic composition that occur in body tissues during elemental incorporation of diet items [@VanderZanden1997; @Perkins2014]. With each trophic transfer, carbon isotope ratios change little which makes them useful for tracking energy pathways from basal resources and identifying the ultimate carbon source supporting consumers. In contrast, nitrogen isotope ratios change markedly and predictably with each trophic transfer, allowing for inference into species’ trophic positions in communities, as well quantification of whole-community food chain length (Post, 2002; Mccutchan et al., 2016; Pinzone et al., 2017).  
 
 However, large spatial variability in the nitrogen isotope ratios—that is, d15N values—of aquatic organisms can make the comparison of food webs among sites or along environmental  gradients problematic (Anderson & Cabana, 2005; Barnes et al., 2008).  Such variability arises from natural processes such as denitrification and nitrogen fixation, but also and importantly from land use changes (Chappuis et al., 2017).  Human-dominated landscapes increase the number of denitrified components of nitrogen in the system (i.e. ammonium and POM) through bacterial decomposition of anthropogenic sources of nitrogen (i.e. agriculture, sewage treatment, livestock manure). Because bacteria preferentially use 14N over 15N when breaking down these nitrogen components the remaining nitrogen from these components that enter the system have elevated d15N signatures (Di Lascio et al., 2013). The d15N values from anthropogenic sources of nitrogen have been shown to propagate up the food web. For example, in the Saint Lawrence lowlands in Quebec, Canada, primary consumer d15N values increased with the intensity of regional nitrogen loading from synthetic fertilizers and pig, chicken and cattle manure (Anderson & Cabana, 2006).  In the northeastern Unites States, watersheds dominated by natural forests had lower d15N values than watersheds dominated by urban or agricultural land (Mayer et al., 2002).  And in streams in northeastern Spain, d15N values of all basal resources were highest in human-impacted mainstem locations (Pastor et al., 2013).  In addition, land-use practices have been shown to elevate d15N values in lacustrine systems in Rhode Island (Lake et al., 2001) and boreal streams in south-central Sweden (Bergfur et al., 2009).  Thus, comparing food webs from sites dominated by different land uses can cause erroneous inferences into food web structure and function.
 
@@ -107,7 +110,7 @@ Samples were collected during summer 2016. Basal resources (i.e., primary uptake
 
 Macroinvertebrates were identified to family level using an invertebrate guide (Merritt et al. 2008). We classified macroinvertebrates into FFGs using a trait-based method. We obtained invertebrate trophic trait data from the USA Freshwater Biological Traits Database (Vieira et al. 2006), and then assigned trait affinity scores from 0 (absent) to 3 (strong affinity) using “fuzzy-coding” (Chevene et al. 1994). Because larvae and adults have different feeding behaviors, Elmidae were separated by life stage during identification.
 
-When possible, we used individual macroinvertebrates for SIA but for small taxa we pooled individuals to ensure enough material for SIA. Muscle fillets were removed from the cranial dorsal portion of each fish. Samples were oven died (60 $^\circ$C, 48 hours), ground into a homogenous powder, and weighed to the nearest 0.001 mg. Animal samples (~1.0 mg) and basal resources (~2.0 mg) were weighed into 8 x 5-mm tin capsules and analyzed for d15N, d13C, %C, %N and C:N ratio at the University of Wyoming Stable Isotope Facility using a Delta Plus XP Continuous Flow Stable Isotope Ratio Mass Spectrometer (Thermo Finnigan, Bremen, Germany) coupled to a Costech Analytical 4010 elemental analyzer. Carbon (13C:12C) and nitrogen (15N:14N) isotope ratios (R) were estimated relative to their respective International Atomic Energy Agency standards (Pee Dee Belemnite limestone and atmospheric nitrogen). Working internal standards were run as controls throughout analysis to ensure accurate measurements. Isotopic values are reported in per mill delta notation \@ref(eq:ratio):
+<!-- When possible, we used individual macroinvertebrates for SIA but for small taxa we pooled individuals to ensure enough material for SIA. Muscle fillets were removed from the cranial dorsal portion of each fish. Samples were oven died (60 $^\circ$C, 48 hours), ground into a homogenous powder, and weighed to the nearest 0.001 mg. Animal samples (~1.0 mg) and basal resources (~2.0 mg) were weighed into 8 x 5-mm tin capsules and analyzed for d15N, d13C, %C, %N and C:N ratio at the University of Wyoming Stable Isotope Facility using a Delta Plus XP Continuous Flow Stable Isotope Ratio Mass Spectrometer (Thermo Finnigan, Bremen, Germany) coupled to a Costech Analytical 4010 elemental analyzer. Carbon (13C:12C) and nitrogen (15N:14N) isotope ratios (R) were estimated relative to their respective International Atomic Energy Agency standards (Pee Dee Belemnite limestone and atmospheric nitrogen). Working internal standards were run as controls throughout analysis to ensure accurate measurements. Isotopic values are reported in per mill delta notation \@ref(eq:ratio): -->
 
 \begin{equation}
 \delta^{n} = (\frac{R_{sample}}{R_{standard}}+1) * 100 (\#eq:ratio)
@@ -131,23 +134,24 @@ We use one-way analysis of variance (ANOVA) to test for differences in CV values
 
 #### Criteria 3: Correlation with Longitudinal Gradient 
 
-For all macroinvertebrate taxa and FFGs, we used least squares linear regression to assess relationships between the baseline’s d15N position at sites along the longitudinal stream gradient.  We wished to compare our baselines’ relationships to the longitudinal gradient with those of the basal resources. So, we did separate least squares linear regressions for two of the basal resources at our sites and compared R2 values between the baselines and the resources at our sites.  The R2 value of our basal resources represent the minimum level of variation that our alternate baselines should explain in order to be used as alternatives to the traditional method (e.g. all basal resources across a season).   Baselines with significant ($P \le 0.05$) relationships with the longitudinal gradient and that had R2 values equal to or greater than the basal resources were considered suitable baselines.
+For all macroinvertebrate taxa and FFGs, we used least squares linear regression to assess relationships between the baseline’s d15N position at sites along the longitudinal stream gradient.  We wished to compare our baselines’ relationships to the longitudinal gradient with those of the basal resources. So, we did separate least squares linear regressions for two of the basal resources at our sites and compared R2 values between the baselines and the resources at our sites.  The R2 value of our basal resources represent the minimum level of variation that our alternate baselines should explain in order to be used as alternatives to the traditional method (e.g. all basal resources across a season).   
+<!-- Baselines with significant ($P \le 0.05$) relationships with the longitudinal gradient and that had R2 values equal to or greater than the basal resources were considered suitable baselines. -->
 
 #### Criteria 4: Trophic Position Estimates Independent of Longitudinal Gradient
 
 We calculated trophic positions for Brown Trout, Creek Chub, and White Sucker using each macroinvertebrate taxa and FFG as a baseline following (Post, 2002):
 
-\begin{equation}
+<!-- \begin{equation} -->
 
-\end{equation}
+<!-- \end{equation} -->
 
-where TPConsumer is the trophic position of each individual fish at a site, d15NConsumer is the d15N signature of each individual fish, d15NBaseline is the mean d15N signature of the baseline at each site, ∆15N is the discrimination factor for each trophic transfer, and TLBaseline is the expected trophic level of the baseline. Discrimination factor were estimated using the methods of Caut et al. (2009).  
+where TPConsumer is the trophic position of each individual fish at a site, d15NConsumer is the d15N signature of each individual fish, d15NBaseline is the mean d15N signature of the baseline at each site, d15N is the discrimination factor for each trophic transfer, and TLBaseline is the expected trophic level of the baseline. Discrimination factor were estimated using the methods of Caut et al. (2009).  
 
 To assess the difference between corrected TP estimates and uncorrected TP estimates of Brown Trout, Creek Chub, and White Sucker, we modified the above equation by removing the baseline correction. The resulting formula is:
 
-\begin{equation}
+<!-- \begin{equation} -->
 
-\end{equation}
+<!-- \end{equation} -->
 
 We use analysis of covariance (ANCOVA) to test for differences in slopes among baselines and FFGs. Separate analyses were done on taxa and FFG.  The TP estimates were square root or log transformed to ensure normality.  After each ANCOVA, we used the Tukey HSD method for pairwise-comparison across each baseline. All analysis was done in R version 3.2 (R Core Team, 2019). 
 
@@ -164,7 +168,7 @@ We calculated the coefficient of variation (CV) for d15N at each site for the 12
 
 ### Criteria 3: Correlation with Environmental d15N 
 
-The two basal resources, biofilm and seston, had d15N signatures that were significantly (P ≤ 0.05) correlated with the longitudinal stream gradient (PC1) (Figure 3; Table 1). All eight of the well distributed taxa and all FFG’s had d15N signatures that were significantly correlated with PC1 (Figure 3). The amount of variation in d15N signatures captured by the longitudinal gradient was similar among the two basal resources, eight sufficiently distributed taxa and the four FFGs.
+The two basal resources, biofilm and seston, had d15N signatures that were significantly (P > =  0.05) correlated with the longitudinal stream gradient (PC1) (Figure 3; Table 1). All eight of the well distributed taxa and all FFG’s had d15N signatures that were significantly correlated with PC1 (Figure 3). The amount of variation in d15N signatures captured by the longitudinal gradient was similar among the two basal resources, eight sufficiently distributed taxa and the four FFGs.
 
 ### Criteria 4: Trophic Position Estimates Independent of Environmental d15N
 
