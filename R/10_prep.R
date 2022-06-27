@@ -22,7 +22,7 @@ PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>%
   # add 5 to gradient to aid interpretability
   mutate(PC1 = (PC1 + 5))
 
-# land use, caluclated via GIS
+# land use, calculated via GIS
 LandUsedat <- read_csv(here("data", "land-use.csv"))
 
 # add land use to site list / gradient
