@@ -19,7 +19,7 @@ isodat <- read_csv(here("data", "sia_inverts_compiled.csv"))
 
 # longitudinal gradient proxy from PCA (Maitland 2020)
 PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>% 
-  # add 5 to gradeint to aid interpretability
+  # add 5 to gradient to aid interpretability
   mutate(PC1 = (PC1 + 5))
 
 # land use, caluclated via GIS
