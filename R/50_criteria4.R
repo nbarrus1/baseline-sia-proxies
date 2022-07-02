@@ -5,13 +5,15 @@
 
 # libraries
 library(tidyverse) 
-library(here)
+library(gridExtra)
 
 
 # Data ----------------
+#find the mean d15N for each baseline proxy at our sites across our three sampling periods
+
 
 meanNdatall <- invertdata %>% 
-  group_by(taxon_code,site_id) %>%                                      #group by site and taxon
+  group_by(taxon_code,site_id) %>%                        #group by site and taxon
   summarise(                                              #summarise get sample size, mean, standard deviation and CV
     mean_d15n = mean(d15N, na.rm = TRUE)) %>% 
   spread(taxon_code,mean_d15n)
@@ -22,48 +24,51 @@ ffg_meanN <- invertdata %>%
   spread(ffg, mean_d15n)
 
 #####Trophic Position Estimate #####
+
+#get the isotope data for our three target fish species
+
 fishdat <- isodat %>% 
   filter(resource == "fish") %>% 
   filter(taxon_code == "CKC"|
            taxon_code == "WHS"|
            taxon_code == "BNT") 
 
+#estimate the TP of each of our target fish sample without correction from baseline
+
 uncorrected_data<- fishdat %>% 
-  left_join(meanNdatall,by = "site_id") %>% 
-  left_join(ffg_meanN, by = "site_id") %>% 
   left_join(PCAdat, by = "site_id") %>% 
   mutate(discFactor = ((-0.281*d15N)+5.879)) %>% 
   dplyr::select(-sample_year, -d13C, -stream_name, -unique_id, -sia_sample_id, -sample_hitch,
                 -compartment, -resource, -length_mm, -d13C_scl, -d15N_scl, -CN, -lulc_del, 
                 -lulc_ag, -PC2) %>% 
-  gather(key = "model", value = "correction", 4:30) %>% 
-  drop_na(correction) %>% 
   mutate(TP_nobase = d15N/discFactor) 
 
-bnt_uncorrected_data <- uncorrected_data %>% 
-  filter(model == "Predator" & taxon_code == "BNT") %>% 
-  dplyr::select(PC1,TP_nobase,site_id,taxon_code)
-ckc_uncorrected_data <- uncorrected_data %>% 
-  filter(model == "Predator" & taxon_code == "CKC")%>% 
-  dplyr::select(PC1,TP_nobase,site_id,taxon_code)
-whs_uncorrected_data <- uncorrected_data %>% 
-  filter(model == "Predator" & taxon_code == "WHS")%>% 
-  dplyr::select(PC1,TP_nobase,site_id,taxon_code)
 
-comb_uncorrected_data <- bnt_uncorrected_data %>% 
-  bind_rows(ckc_uncorrected_data) %>% 
-  bind_rows(whs_uncorrected_data)
+#quick plot to view the uncorrected TP data
 
-unique(uncorrected_data$model)
-unique(uncorrected_data$taxon_code) 
-unique(uncorrected_data$PC1)
+uncorrected_data %>% 
+  ggplot(aes (x = PC1, y = TP_nobase, color = taxon_code))+
+  geom_point()+
+  geom_smooth(method = "lm")
 
-ucor_data <- expand.grid(taxon_code = unique(uncorrected_data$taxon_code),
-                         model = unique(uncorrected_data$model),
-                         PC1 = unique(uncorrected_data$PC1))
-ucor_data <- ucor_data %>% 
-  left_join(comb_uncorrected_data, by = c("taxon_code", "PC1"))
+#get regression statistics for uncorrected TP vs PC1 for each fish
 
+fit.bnt <- lm(TP_nobase~PC1, data = uncorrected_data[uncorrected_data$taxon_code == "BNT",])
+summary(fit.bnt)
+
+     #int = 0.860, slope = 0.506, R2 = 0.227, F(1,371) = 110.1, p < 0.001
+
+fit.ckc <- lm(TP_nobase~PC1, data = uncorrected_data[uncorrected_data$taxon_code == "CKC",])
+summary(fit.ckc)
+
+     #int = 2.679, slope = 0.141, R2 = 0.024, F(1,358) = 9.798, p = 0.002
+
+fit.whs <- lm(TP_nobase~PC1, data = uncorrected_data[uncorrected_data$taxon_code == "WHS",])
+summary(fit.whs)
+
+     #int = 1.4739, slope = 0.201, R2 = 0.103, F(1,289) = 34.43, p < 0.001
+
+#estimate the TP while correcting values with our baseline proxies
 
 corrected_data<- fishdat %>% 
   left_join(meanNdatall,by = "site_id") %>% 
@@ -77,194 +82,424 @@ corrected_data<- fishdat %>%
   drop_na(correction) %>% 
   mutate(TP = (((d15N-correction)/discFactor)+2)) 
 
-fishdataall <- corrected_data %>% 
-  bind_rows(ucor_data)
-
-#####uncorrected TP estimate Regressions####
-###regression for BNT noncorrected###
-
-fit_uncorrect <- lm(TP_nobase ~ PC1, data = bnt_uncorrected_data) 
-summary(fit_uncorrect)
-#regression equation BNT is TP = 0.5057*PC1 + 0.8598, Adj R square = 0.2268, pval < 0.001
-
-###regression for CKC noncorrected###
-
-fit_uncorrect <- lm(TP_nobase ~ PC1, data = ckc_uncorrected_data) 
-summary(fit_uncorrect)
-#regression equation CKC is TP = 0.2629*PC1 + 2.0782, Adj R square = 0.02, pval < 0.002
-
-###regression for WHS noncorrected###
-
-fit_uncorrect <- lm(TP_nobase ~ PC1, data = whs_uncorrected_data) 
-summary(fit_uncorrect)
-#regression equation WHS is TP = 0.2372*PC1 + 1.3266, Adj R square = 0.1034, pval < 0.001
-
-write_csv(fishdataall, "fishdataall.csv")
-
-uncor_dat <- fishdataall %>% 
-  dplyr::select(PC1,TP_nobase,taxon_code)
-
-uncor_b1_BNT <- uncor_b1 %>% 
-  filter(taxon_code == "BNT")
-uncor_b1_CKC <- uncor_b1 %>% 
-  filter(taxon_code == "CKC")
-uncor_b1_WHS <- uncor_b1 %>% 
-  filter(taxon_code == "WHS")
-
-fit_BNT <- lm(TP_nobase~PC1, data = uncor_b1_BNT)
-summary(fit_BNT)
-#b1 = 0.497
-fit_CKC <- lm(TP_nobase~PC1, data = uncor_b1_CKC)
-summary(fit_CKC)
-#b1 = 0.186
-fit_WHS <- lm(TP_nobase~PC1, data = uncor_b1_WHS)
-summary(fit_WHS)
-#b1 = 0.230
-
-uncor_b1 <- tibble(taxon_code = c("BNT", "CKC", "WHS"),
-                   uncor_b1 = c("0.497", "0.186", "0.230"))
-
-uncor_b1$uncor_b1 <- as.numeric(uncor_b1$uncor_b1)
-
 ######Plot Trophic Position vs. gradient ######
 
-###plots them all together hard to see any relationship
+#####  taxa proxies.............
 
+#brown trout plots
 
-#pc1
+bnt_uncorrect <- uncorrected_data %>% 
+  filter(taxon_code == "BNT")
 
-TPplot_pc1 <- fishdataall %>%                                             #Use Trophic position dat
-  ggplot(aes(x = PC1, y = TP_nobase))+                       #plot TP vs LUlc
-  geom_point(data = uncorrected_data, aes(x = PC1, y = TP_nobase), color = "grey")+                                                    #plot points
-  geom_point(aes( x = PC1, y = TP))+
-  geom_smooth(data = uncorrected_data, aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+                                        #Plot linear model
-  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
-  facet_grid(model~taxon_code)+                                         #separately based on taxon_code
-  theme_classic()+                                                 #use theme clasic
-  labs( y = "Trophic Position", x = "Longitudinal Gradient (PC1)", title = "TP Estimates By Baseline")+                                       #Labels 
-  theme(axis.title = element_text(size = 10, color = "black"),
-        axis.text = element_text(size = 8, color = "black"),
-        title = element_text(size = 10, color = "black"),
-        strip.background = element_rect(fill = "white", linetype = 0))   
+#bnt corrected by baetidae
 
-ggsave(filename = "figures/tpvsnatall_pc1.pdf", plot = last_plot(), 
-       device = "pdf", width = 52, height = 52, units = "in", limitsize = FALSE)
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Baetidae",])
+summary(fit.bnt)
 
-
-####BNT focus taxon
-
-#pc1
-
-BNT_TPplot_pc1 <- fishdataall %>% 
-  filter(model %in% focustaxon$taxon_code) %>% 
+bnt.baetidae <- corrected_data %>% 
+  filter(model == "Baetidae") %>%
   filter(taxon_code == "BNT") %>% 
-  ggplot(aes(x = PC1, y = TP_nobase))+                       #plot TP vs LUlc
-  geom_point(aes(x = PC1, y = TP_nobase), color = "grey")+                                                    #plot points
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
   geom_point(aes( x = PC1, y = TP))+
-  geom_smooth(aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+                                        #Plot linear model
   geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
-  facet_rep_wrap(~model)+                                         #separately based on taxon_code
-  theme_classic()+                                                 #use theme clasic
-  labs( y = "Trophic Position", x = "Longitudinal Gradient (PC1)")+                                       #Labels 
+  theme_classic()+ 
+  labs( y = " ", x = NULL, title = "A) BNT by Baetidae")+                                       #Labels 
   theme(axis.title = element_text(size = 14, color = "black"),
         axis.text = element_text(size = 10, color = "black"),
-        title = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,10), breaks = c(0,2,4,6,8))+
-  scale_x_continuous(limits = c(0,10), breaks = c(0,3,6,9))+
-  stat_cor(label.y = 9, aes(label = paste(..rr.label.., format_pval(..p..), sep = "*`,`~")), size = 3)
+  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 2.8, y = 6.5, label = "COR: R2 = 0.024; p = 0.004", size = 2.5)
+  
+#bnt corrected by ephemeridae
 
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Ephemeridae",])
+summary(fit.bnt)
 
-ggsave(filename = "figures/pdfs/BNT_tpvsnatfocustax_pc1.pdf", plot = last_plot(), 
-       device = "pdf", width = 8, height = 8, units = "in", limitsize = FALSE)
+bnt.ephemeridae<- corrected_data %>% 
+  filter(model == "Ephemeridae") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  theme_classic()+ 
+  labs( y = " ", x = NULL, title = "D) BNT by Ephemeridae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 1.5, y = 6.5, label = "COR: ns",size = 2.5)
 
-####CKC focus taxon
+#bnt corrected by Heptaganeidae
 
-#pc1
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Heptaganeidae",])
+summary(fit.bnt)
 
-CKC_TPplot_pc1 <- fishdataall %>% 
-  filter(model %in% focustaxon$taxon_code) %>% 
+bnt.heptaganeidae <- corrected_data %>% 
+  filter(model == "Heptaganeidae") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  theme_classic()+ 
+  labs( y = "Trophic Position", x = NULL, title = "G) BNT by Heptaganeidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 1.5, y = 6.5, label = "COR: ns",size = 2.5)
+
+#bnt corrected by Hydropyschidae
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Hydropyschidae",])
+summary(fit.bnt)
+
+bnt.hydropyschidae<- corrected_data %>% 
+  filter(model == "Hydropyschidae") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = " ", x = NULL, title = "J) BNT by Hydropyschidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 2.8, y = 6.5, label = "COR: R2 = 0.126; p < 0.001",size = 2.5)
+
+#bnt corrected by Simulidae
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Simulidae",])
+summary(fit.bnt)
+
+bnt.simulidae<- corrected_data %>% 
+  filter(model == "Simulidae") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = " ", x = " ", title = "M) BNT by Simulidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 2.8, y = 6.5, label = "COR: R2 = 0.072; p < 0.001",size = 2.5)
+
+#creek chub plots
+
+ckc_uncorrect <- uncorrected_data %>% 
+  filter(taxon_code == "CKC")
+
+#ckc corrected by baetidae
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Baetidae",])
+summary(fit.ckc)
+
+ckc.baetidae <- corrected_data %>% 
+  filter(model == "Baetidae") %>%
   filter(taxon_code == "CKC") %>% 
-  ggplot(aes(x = PC1, y = TP_nobase))+                       #plot TP vs LUlc
-  geom_point(aes(x = PC1, y = TP_nobase), color = "grey")+                                                    #plot points
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
   geom_point(aes( x = PC1, y = TP))+
-  geom_smooth(aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+                                        #Plot linear model
   geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
-  facet_rep_wrap(~model)+                                         #separately based on taxon_code
-  theme_classic()+                                                 #use theme clasic
-  labs( y = "Trophic Position", x = "Longitudinal Gradient (PC1)")+                                       #Labels 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "B) CKC by Baetidae")+                                       #Labels 
   theme(axis.title = element_text(size = 14, color = "black"),
         axis.text = element_text(size = 10, color = "black"),
-        title = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,10), breaks = c(0,2,4,6,8))+
-  scale_x_continuous(limits = c(0,10), breaks = c(0,3,6,9))+
-  stat_cor(label.y = 9, aes(label = paste(..rr.label.., format_pval(..p..), sep = "*`,`~")), size = 3)
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.084; p < 0.001",size = 2.5)
 
+#ckc corrected by ephemeridae
 
-ggsave(filename = "figures/pdfs/CKC_tpvsnatfocustax_pc1.pdf", plot = last_plot(), 
-       device = "pdf", width = 8, height = 8, units = "in", limitsize = FALSE)
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Ephemeridae",])
+summary(fit.ckc)
 
-####WHS focus taxon
+ckc.ephemeridae <- corrected_data %>% 
+  filter(model == "Ephemeridae") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "E) CKC by Ephemeridae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.033; p = 0.003",size = 2.5)
 
-#pc1
+#ckc corrected by heptaganeidae
 
-WHS_TPplot_pc1 <- fishdataall %>% 
-  filter(model %in% focustaxon$taxon_code) %>% 
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Heptaganeidae",])
+summary(fit.ckc)
+
+ckc.heptaganeidae<- corrected_data %>% 
+  filter(model == "Heptaganeidae") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "H) CKC by Heptaganeidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.023; p = 0.004",size = 2.5)
+
+#ckc corrected by hydropyschidae
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Hydropyschidae",])
+summary(fit.ckc)
+
+ckc.hydropyschidae<- corrected_data %>% 
+  filter(model == "Hydropyschidae") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "K) CKC by Hydropyschidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
+  annotate(geom = "text", x = 4.48, y = 7.5, label = "COR: ns",size = 2.5)
+
+#ckc corrected by simulidae
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Simulidae",])
+summary(fit.ckc)
+
+ckc.simulidae<- corrected_data %>% 
+  filter(model == "Simulidae") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  theme_classic()+ 
+  labs( y = NULL, x = "Longitudinal Gradient (PC1)", title = "N) CKC by Simulidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
+  annotate(geom = "text", x = 4.48, y = 7.5, label = "COR: ns",size = 2.5)
+
+#white sucker plots
+
+ckc_uncorrect <- uncorrected_data %>% 
+  filter(taxon_code == "WHS")
+
+#whs corrected by baetidae
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Baetidae",])
+summary(fit.whs)
+
+whs.baetidae <- corrected_data %>% 
+  filter(model == "Baetidae") %>%
   filter(taxon_code == "WHS") %>% 
-  ggplot(aes(x = PC1, y = TP_nobase))+                       #plot TP vs LUlc
-  geom_point(aes(x = PC1, y = TP_nobase), color = "grey")+                                                    #plot points
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
   geom_point(aes( x = PC1, y = TP))+
-  geom_smooth(aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+                                        #Plot linear model
-  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
-  facet_rep_wrap(~model)+                                         #separately based on taxon_code
-  theme_classic()+                                                 #use theme clasic
-  labs( y = "Trophic Position", x = "Longitudinal Gradient (PC1)")+                                       #Labels 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "C) WHS by Baetidae")+                                       #Labels 
   theme(axis.title = element_text(size = 14, color = "black"),
         axis.text = element_text(size = 10, color = "black"),
-        title = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,10), breaks = c(0,2,4,6,8))+
-  scale_x_continuous(limits = c(0,10), breaks = c(0,3,6,9))+
-  stat_cor(label.y = 9, aes(label = paste(..rr.label.., format_pval(..p..), sep = "*`,`~")), size = 3)
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 4.48, y = 7.5, label = "COR: ns",size = 2.5)
 
+#whs corrected by ephemeridae
 
-ggsave(filename = "figures/pdfs/WHS_tpvsnatfocustax_pc1.pdf", plot = last_plot(), 
-       device = "pdf", width = 8, height = 8, units = "in", limitsize = FALSE)
-###just ffg
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Ephemeridae",])
+summary(fit.whs)
 
-focusffg <- corr_reg_pc1_ffg$ffg
-
-#pc1
-
-TPplot_pc1 <- fishdataall %>% 
-  filter(model %in% focusffg) %>% 
-  ggplot(aes(x = PC1, y = TP_nobase))+                       #plot TP vs LUlc
-  geom_point(aes(x = PC1, y = TP_nobase), color = "grey")+                                                    #plot points
+whs.ephemeridae <- corrected_data %>% 
+  filter(model == "Ephemeridae") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
   geom_point(aes( x = PC1, y = TP))+
-  geom_smooth(aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+                                        #Plot linear model
   geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
-  facet_rep_grid(model~taxon_code)+                                         #separately based on taxon_code
-  theme_classic()+                                                 #use theme clasic
-  labs( y = "Trophic Position", x = "Longitudinal Gradient (PC1)")+                                       #Labels 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "F) WHS by Ephemeridae")+                                       #Labels 
   theme(axis.title = element_text(size = 14, color = "black"),
         axis.text = element_text(size = 10, color = "black"),
-        title = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,10), breaks = c(0,2,4,6,8))+
-  scale_x_continuous(limits = c(0,10), breaks = c(0,3,6,9))+
-  stat_cor(label.y = 9, aes(label = paste(..rr.label.., format_pval(..p..), sep = "*`,`~")), size = 3)
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.213; p < 0.001",size = 2.5)
 
+#whs corrected by heptaganeidae
 
-ggsave(filename = "figures/tpvsnatfocusffg_pc1.png", plot = last_plot(), 
-       device = "png", width = 8, height = 8, units = "in", limitsize = FALSE)
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Heptaganeidae",])
+summary(fit.whs)
 
-ggsave(filename = "figures/pdfs/tpvsnatfocusffg_pc1.pdf", plot = last_plot(), 
-       device = "pdf", width = 8, height = 8, units = "in", limitsize = FALSE)
+whs.heptaganeidae <- corrected_data %>% 
+  filter(model == "Heptaganeidae") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs(y = NULL, x = NULL, title = "I) WHS by Heptaganeidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.082; p < 0.001",size = 2.5)
+
+#whs corrected by Hydropyschidae
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Hydropyschidae",])
+summary(fit.whs)
+
+whs.hydropyschidae<- corrected_data %>% 
+  filter(model == "Hydropyschidae") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "L) WHS by Hydropyschidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.042; p < 0.001",size = 2.5)
+
+#whs corrected by Simulidae
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Simulidae",])
+summary(fit.whs)
+
+whs.simulidae<- corrected_data %>% 
+  filter(model == "Simulidae") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = " ", title = "O) WHS by Simulidae")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.003; p = 0.003",size = 2.5)
+
+#combine all plots together
+
+cor.taxa <- grid.arrange(bnt.baetidae,ckc.baetidae,whs.baetidae,
+             bnt.ephemeridae, ckc.ephemeridae, whs.ephemeridae,
+             bnt.heptaganeidae, ckc.heptaganeidae, whs.heptaganeidae,
+             bnt.hydropyschidae, ckc.hydropyschidae, whs.hydropyschidae,
+             bnt.simulidae,ckc.simulidae,whs.simulidae,
+             layout_matrix = rbind(c(1,2,3),
+                                   c(4,5,6),
+                                   c(7,8,9),
+                                   c(10,11,12),
+                                   c(13,14,15)))
+
+ggsave("cortaxa.png", plot = cor.taxa, device = png, width = 8.5, height = 11, units = "in")
 
 #####MODEL INFORMATON USING NESTED DATA#####
 
@@ -358,200 +593,3 @@ sc_ephsimfilt <- slopechange %>%
   filter(model == "Simulidae" | model == "Ephemeridae" | model == "Filterer")
 
 
-
-
-#----------------------------------------------------------------------------#
-#############ANCOVAS for all plots##########
-#----------------------------------------------------------------------------#
-
-uncorrecteddata <- fishdataall %>% 
-  filter(model == "Predator") %>% 
-  mutate(model = "Uncorrected") %>% 
-  dplyr::select(- TP) %>% 
-  rename(TP = TP_nobase)
-
-ancovadata <- fishdataall %>% 
-  bind_rows(uncorrecteddata) %>% 
-  dplyr::select(-TP_nobase)
-
-library(car)
-library(tidyverse)
-#####BNT by baseline model####
-
-#Predator vs uncorrected 
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "BNT") %>% 
-  filter(model == "Uncorrected"| model == "Predator" | model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-BNT_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-save_plot(filename = "figures/pdfs/current.pdf", plot = last_plot(), device = pdf(),
-          units = "in", base_width = 8.5, base_height = 8.5)
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "BNT") %>% 
-  filter(model == "Predator" | model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-#BNT~uncorrected vs predator
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "BNT") %>% 
-  filter(model == "Uncorrected"| model == "Predator" | model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "BNT") %>% 
-  filter(model == "Uncorrected"| model == "Predator" | model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-#####CKC by baseline model####
-
-#all vs uncorrected 
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "CKC") %>% 
-  filter(model == "Uncorrected"| model == "Predator" | model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-BNT_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-save_plot(filename = "figures/pdfs/current.pdf", plot = last_plot(), device = pdf(),
-          units = "in", base_width = 8.5, base_height = 8.5)
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "CKC") %>% 
-  filter(model == "Uncorrected"| model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-#####WHS by baseline model####
-
-#Predator vs uncorrected 
-BNT_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "WHS") %>% 
-  filter(model == "Uncorrected"| model == "Predator" | model == "Collector"
-         |model == "Filterer"| model == "Grazer")
-
-BNT_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-save_plot(filename = "figures/pdfs/current.pdf", plot = last_plot(), device = pdf(),
-          units = "in", base_width = 8.5, base_height = 8.5)
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-
-#########BNT and Taxa###########
-
-taxa_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "BNT") %>% 
-  filter(model == "Uncorrected" | model == "Baetidae" | model == "Chironomidae" |
-           model == "Dytiscidae" | model == "Elmidae-adult" | model == "Elmidae-larvae" |
-           model == "Heptaganeidae" | model == "Hydropyschidae" | model == "Simulidae")
-
-taxa_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-taxa_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "BNT") %>% 
-  filter( model == "Baetidae" | model == "Chironomidae" |
-            model == "Dytiscidae" | model == "Elmidae-adult" | model == "Elmidae-larvae" |
-            model == "Heptaganeidae" | model == "Hydropyschidae" | model == "Simulidae")
-
-taxa_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-####wHS and Taxa####
-
-taxa_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "WHS") %>% 
-  filter(model == "Uncorrected" | model == "Baetidae" | model == "Chironomidae" |
-           model == "Dytiscidae" | model == "Elmidae-adult" | model == "Elmidae-larvae" |
-           model == "Heptaganeidae" | model == "Hydropyschidae" | model == "Simulidae")
-
-taxa_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-taxa_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "WHS") %>% 
-  filter( model == "Baetidae" | model == "Chironomidae" |
-            model == "Dytiscidae" | model == "Elmidae-adult" | model == "Elmidae-larvae" |
-            model == "Heptaganeidae" | model == "Hydropyschidae" | model == "Simulidae")
-
-taxa_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-####CKC and Taxa####
-
-taxa_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "CKC") %>% 
-  filter(model == "Uncorrected" | model == "Baetidae" | model == "Chironomidae" |
-           model == "Dytiscidae" | model == "Elmidae-adult" | model == "Elmidae-larvae" |
-           model == "Heptaganeidae" | model == "Hydropyschidae" | model == "Simulidae")
-
-taxa_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
-
-taxa_ancovadata <- ancovadata %>% 
-  filter(taxon_code == "CKC") %>% 
-  filter( model == "Baetidae" | model == "Chironomidae" |
-            model == "Dytiscidae" | model == "Elmidae-adult" | model == "Elmidae-larvae" |
-            model == "Heptaganeidae" | model == "Hydropyschidae" | model == "Simulidae")
-
-taxa_ancovadata %>% 
-  ggplot(aes(x = PC1, y = TP, shape = model))+
-  geom_point(aes(color = model))+
-  geom_smooth(aes(color = model), method = "lm")
-
-hoRS <- aov(TP ~ PC1 * model, data = BNT_ancovadata)
-Anova(hoRS, type="III")
