@@ -112,10 +112,10 @@ bnt.baetidae <- corrected_data %>%
         title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
   scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
-  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 2.8, y = 6.5, label = "COR: R2 = 0.024; p = 0.004", size = 2.5)
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.2, y = 8.5, label = expression(COR:~R^2~"="~0.024:~italic(P)~"="~0.004), size = 2.5)
   
 #bnt corrected by ephemeridae
 
@@ -137,10 +137,10 @@ bnt.ephemeridae<- corrected_data %>%
         title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
   scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
-  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 1.5, y = 6.5, label = "COR: ns",size = 2.5)
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 1.4, y = 8.4, label = "COR: ns",size = 2.5)
 
 #bnt corrected by Heptaganeidae
 
@@ -162,10 +162,12 @@ bnt.heptaganeidae <- corrected_data %>%
         title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
   scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
-  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 1.5, y = 6.5, label = "COR: ns",size = 2.5)
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 1.4, y = 8.4, label = "COR: ns",size = 2.5)
+
+expression(UNC:~R^2~"="~0.227:~italics(P)~"<"~0.001)
 
 #bnt corrected by Hydropyschidae
 
@@ -188,10 +190,10 @@ bnt.hydropyschidae<- corrected_data %>%
         title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
   scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
-  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 2.8, y = 6.5, label = "COR: R2 = 0.126; p < 0.001",size = 2.5)
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.2, y = 8.5, label = expression(COR:~R^2~"="~0.126:~italic(P)~"<"~ 0.001),size = 2.5)
 
 #bnt corrected by Simulidae
 
@@ -214,10 +216,10 @@ bnt.simulidae<- corrected_data %>%
         title = element_text(size = 8, color = "black"),
         strip.background = element_rect(fill = "white", linetype = 0),
         strip.text = element_text(size = 12, color = "black"))+
-  scale_y_continuous(limits = c(0,8), breaks = c(0,2,4,6,8))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
   scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
-  annotate(geom = "text", x = 2.8, y = 7, label = "UNC: R2 = 0.227; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 2.8, y = 6.5, label = "COR: R2 = 0.072; p < 0.001",size = 2.5)
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.2, y = 8.4, label = expression(COR:~R^2~"="~0.072:~italic(P)~"<"~0.001),size = 2.5)
 
 #creek chub plots
 
@@ -247,8 +249,8 @@ ckc.baetidae <- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.084; p < 0.001",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.084:~italic(P)~"<"~0.001),size = 2.5)
 
 #ckc corrected by ephemeridae
 
@@ -273,8 +275,8 @@ ckc.ephemeridae <- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.033; p = 0.003",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.033:~ italic(P)~"="~0.003),size = 2.5)
 
 #ckc corrected by heptaganeidae
 
@@ -299,8 +301,8 @@ ckc.heptaganeidae<- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.023; p = 0.004",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.023:~ italic(P)~"="~0.004),size = 2.5)
 
 #ckc corrected by hydropyschidae
 
@@ -324,8 +326,8 @@ ckc.hydropyschidae<- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
-  annotate(geom = "text", x = 4.48, y = 7.5, label = "COR: ns",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 4.28, y = 7.4, label = "COR: ns",size = 2.5)
 
 #ckc corrected by simulidae
 
@@ -349,8 +351,8 @@ ckc.simulidae<- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.024; p = 0.002",size = 2.5)+
-  annotate(geom = "text", x = 4.48, y = 7.5, label = "COR: ns",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 4.28, y = 7.3, label = "COR: ns",size = 2.5)
 
 #white sucker plots
 
@@ -379,8 +381,8 @@ whs.baetidae <- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 4.48, y = 7.5, label = "COR: ns",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 4.28, y = 7.4, label = "COR: ns",size = 2.5)
 
 #whs corrected by ephemeridae
 
@@ -405,8 +407,8 @@ whs.ephemeridae <- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.213; p < 0.001",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.213:~italic(P)~"<"~0.001),size = 2.5)
 
 #whs corrected by heptaganeidae
 
@@ -431,8 +433,8 @@ whs.heptaganeidae <- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.082; p < 0.001",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.082:~italic(P)~"<"~0.001),size = 2.5)
 
 #whs corrected by Hydropyschidae
 
@@ -457,8 +459,8 @@ whs.hydropyschidae<- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.042; p < 0.001",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.042:~italic(P)~"<"~0.001),size = 2.5)
 
 #whs corrected by Simulidae
 
@@ -483,8 +485,8 @@ whs.simulidae<- corrected_data %>%
         strip.text = element_text(size = 12, color = "black"))+
   scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
   scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
-  annotate(geom = "text", x = 5.3, y = 8, label = "UNC: R2 = 0.103; p < 0.001",size = 2.5)+
-  annotate(geom = "text", x = 5.3, y = 7.5, label = "COR: R2 = 0.003; p = 0.003",size = 2.5)
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.4, label = expression(COR:~R^2~"="~0.003:~italic(P)~"="~0.003),size = 2.5)
 
 #combine all plots together
 
@@ -499,7 +501,7 @@ cor.taxa <- grid.arrange(bnt.baetidae,ckc.baetidae,whs.baetidae,
                                    c(10,11,12),
                                    c(13,14,15)))
 
-ggsave("cortaxa.png", plot = cor.taxa, device = png, width = 8.5, height = 11, units = "in")
+ggsave("out/correctedtaxa.png", plot = cor.taxa, device = png, width = 8.5, height = 11, units = "in")
 
 #####MODEL INFORMATON USING NESTED DATA#####
 
