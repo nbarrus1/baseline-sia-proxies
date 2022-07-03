@@ -503,6 +503,425 @@ cor.taxa <- grid.arrange(bnt.baetidae,ckc.baetidae,whs.baetidae,
 
 ggsave("out/correctedtaxa.png", plot = cor.taxa, device = png, width = 8.5, height = 11, units = "in")
 
+####TP by FFG proxies..........
+
+#brown trout plots
+
+bnt_uncorrect <- uncorrected_data %>% 
+  filter(taxon_code == "BNT")
+
+#bnt corrected by Collector
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Collector",])
+summary(fit.bnt)
+
+bnt.collector <- corrected_data %>% 
+  filter(model == "Collector") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = " ", x = NULL, title = "A) BNT by Collectors")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.2, y = 8.5, label = expression(COR:~R^2~"="~0.029:~italic(P)~"="~0.001), size = 2.5)
+
+#bnt corrected by Filterer
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Filterer",])
+summary(fit.bnt)
+
+bnt.filterer<- corrected_data %>% 
+  filter(model == "Filterer") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = " ", x = NULL, title = "D) BNT by Filterers")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.05, y = 8.5, label = expression(COR:~R^2~"="~0.090:~italic(P)~"<"~0.001), size = 2.5)
+
+#bnt corrected by Grazer
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Grazer",])
+summary(fit.bnt)
+
+bnt.grazer <- corrected_data %>% 
+  filter(model == "Grazer") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = "Trophic Position", x = NULL, title = "G) BNT by Grazers")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.05, y = 8.5, label = expression(COR:~R^2~"="~0.030:~italic(P)~"="~0.001), size = 2.5)
+
+
+#bnt corrected by Predator
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Predator",])
+summary(fit.bnt)
+
+bnt.predator<- corrected_data %>% 
+  filter(model == "Predator") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = " ", x = NULL, title = "J) BNT by Predators")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.2, y = 8.5, label = expression(COR:~R^2~"="~0.048:~italic(P)~"<"~ 0.001),size = 2.5)
+
+#bnt corrected by Shredder
+
+fit.bnt <- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "BNT"& corrected_data$model == "Shredder",])
+summary(fit.bnt)
+
+bnt.shredder<- corrected_data %>% 
+  filter(model == "Shredder") %>%
+  filter(taxon_code == "BNT") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = bnt_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = " ", x = " ", title = "M) BNT by Shredders")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(1,9), breaks = c(1,3,5,7,9))+
+  scale_x_continuous(limits = c(1,9), breaks = c(0,2,4,6,8))+
+  annotate(geom = "text", x = 3.2, y = 9, label = expression(UNC:~R^2~"="~0.227:~italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 3.2, y = 8.4, label = expression(COR:~R^2~"="~0.029:~italic(P)~"="~0.002),size = 2.5)
+
+#creek chub plots
+
+ckc_uncorrect <- uncorrected_data %>% 
+  filter(taxon_code == "CKC")
+
+#ckc corrected by Collectors
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Collector",])
+summary(fit.ckc)
+
+ckc.collector<- corrected_data %>% 
+  filter(model == "Collector") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "B) CKC by Collectors")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 5.3, y = 7.5, label = expression(COR:~R^2~"="~0.010:~italic(P)~"="~0.035),size = 2.5)
+
+#ckc corrected by Fitlerers
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Filterer",])
+summary(fit.ckc)
+
+ckc.filterer <- corrected_data %>% 
+  filter(model == "Filterer") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "E) CKC by Filterers")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 4.28, y = 7.4, label = "COR: ns",size = 2.5)
+
+#ckc corrected by Grazers
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Grazer",])
+summary(fit.ckc)
+
+ckc.grazer<- corrected_data %>% 
+  filter(model == "Grazer") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "H) CKC by Grazers")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 4.28, y = 7.4, label = "COR: ns",size = 2.5)
+
+#ckc corrected by Predators
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Predator",])
+summary(fit.ckc)
+
+ckc.predator<- corrected_data %>% 
+  filter(model == "Predator") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "K) CKC by Predators")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.089:~italic(P)~"<"~0.001),size = 2.5)
+
+#ckc corrected by Shredders
+
+fit.ckc<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "CKC"& corrected_data$model == "Shredder",])
+summary(fit.ckc)
+
+ckc.shredder<- corrected_data %>% 
+  filter(model == "Shredder") %>%
+  filter(taxon_code == "CKC") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = "Longitudinal Gradient (PC1)", title = "N) CKC by Shredders")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.024:~italic(P)~"="~0.002),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.018:~italic(P)~"="~0.024),size = 2.5)
+
+#white sucker plots
+
+ckc_uncorrect <- uncorrected_data %>% 
+  filter(taxon_code == "WHS")
+
+#whs corrected by collectors
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Collector",])
+summary(fit.whs)
+
+whs.collector <- corrected_data %>% 
+  filter(model == "Collector") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "C) WHS by Collectors")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.053:~italic(P)~"<"~0.001),size = 2.5)
+
+#whs corrected by filterers
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Filterer",])
+summary(fit.whs)
+
+whs.filterer <- corrected_data %>% 
+  filter(model == "Filterer") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "F) WHS by Filterers")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.054:~italic(P)~"<"~0.001),size = 2.5)
+
+#whs corrected by Grazer
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Grazer",])
+summary(fit.whs)
+
+whs.grazer <- corrected_data %>% 
+  filter(model == "Grazer") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs(y = NULL, x = NULL, title = "I) WHS by Grazers")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.25, y = 7.5, label = expression(COR:~R^2~"="~0.100:~italic(P)~"<"~0.001),size = 2.5)
+
+#whs corrected by predator
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Predator",])
+summary(fit.whs)
+
+whs.predator<- corrected_data %>% 
+  filter(model == "Predator") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = NULL, title = "L) WHS by Predators")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.5, label = expression(COR:~R^2~"="~0.194:~italic(P)~"<"~0.001),size = 2.5)
+
+#whs corrected by Shredders
+
+fit.whs<- lm(TP ~ PC1, data = corrected_data[corrected_data$taxon_code == "WHS"& corrected_data$model == "Shredder",])
+summary(fit.whs)
+
+whs.sheredder<- corrected_data %>% 
+  filter(model == "Shredder") %>%
+  filter(taxon_code == "WHS") %>% 
+  ggplot(aes(x = PC1, y = TP))+                       
+  geom_point(data = ckc_uncorrect, aes(x = PC1, y = TP_nobase), color = "grey",
+             shape = 17)+
+  geom_smooth(data = uncorrected_data,aes(x = PC1, y = TP_nobase),method = lm, color = "grey", fill = "#CCCCCC")+ 
+  geom_point(aes( x = PC1, y = TP))+
+  geom_smooth(aes(x = PC1, y = TP),method = lm, color = "black", fill = "#333333")+ 
+  theme_classic()+ 
+  labs( y = NULL, x = " ", title = "O) WHS by Shredders")+                                       #Labels 
+  theme(axis.title = element_text(size = 14, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
+        title = element_text(size = 8, color = "black"),
+        strip.background = element_rect(fill = "white", linetype = 0),
+        strip.text = element_text(size = 12, color = "black"))+
+  scale_y_continuous(limits = c(0,8), breaks = c(1,3,5,7))+
+  scale_x_continuous(limits = c(4,9.5), breaks = c(5,7,9))+
+  annotate(geom = "text", x = 5.4, y = 8, label = expression(UNC:~R^2~"="~0.103:~ italic(P)~"<"~0.001),size = 2.5)+
+  annotate(geom = "text", x = 5.4, y = 7.4, label = expression(COR:~R^2~"="~0.145:~italic(P)~"<"~0.001),size = 2.5)
+
+#combine all plots together
+
+cor.ffg <- grid.arrange(bnt.collector,ckc.collector,whs.collector,
+                         bnt.filterer, ckc.filterer, whs.filterer,
+                         bnt.grazer, ckc.grazer, whs.grazer,
+                         bnt.predator, ckc.predator, whs.predator,
+                         layout_matrix = rbind(c(1,2,3),
+                                               c(4,5,6),
+                                               c(7,8,9),
+                                               c(10,11,12)))
+
+ggsave("out/correctedFFG.png", plot = cor.ffg, device = png, width = 8.5, height = 11, units = "in")
+
 #####MODEL INFORMATON USING NESTED DATA#####
 
 TP_fnx_pc1 <- function(df) {lm(TP~PC1, data = df)}
