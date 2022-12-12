@@ -1,5 +1,10 @@
 # Prepare data sets for analyses
 
+
+# TO DO
+# - add in missing data were needed - some sites-taxa combos are missing and data exist
+# - get diet data for focal species
+
 # libraries
 library(tidyverse)
 library(here)
