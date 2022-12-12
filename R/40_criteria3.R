@@ -1,6 +1,6 @@
 
 # Criteria #3: models of baseline, basal resources, and ffg
-
+# do the different potential baselines responded similarly to PC1 changes?
 ## Prep
 
 # libraries

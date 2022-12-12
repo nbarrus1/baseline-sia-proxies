@@ -1,12 +1,12 @@
 
-# Criteria #2: low within-site variation
+# Criteria #2: site-level CV for most common taxa
 
 ## Prep
 
 # libraries
-library(tidyverse) 
-library(here)
-library(cowplot)
+# library(tidyverse) 
+# library(here)
+# library(patchwork)
 
 # functions
 lower_ci <- function(mean, se, n, conf_level = 0.95){
@@ -27,25 +27,44 @@ focustaxon <- Distr_dat %>%
 foucusffg <- Distr_dat_FFG %>% 
   filter(distr >= 75)
 
-## Summarize isotope data ---------
 
-## THIS NEEDS TO BE FIXED
-## TAKING SUMMARY OF SUMMARY - should we just analyze with LMEs?
+# CV by site and group ----------
 
-lowCV_dat <- invertdata %>%
+cv_taxa <- invertdata %>%
+  filter(d15N >= 0) |>   # must remove negative data for CV calculatoins n=6
   filter(taxon_code %in% focustaxon$taxon_code) %>%
-  # summarize by site and taxon
-  group_by(taxon_code, site_id) %>%
+  group_by(site_id, taxon_code) %>%
   summarise(
     n = n(),
     mean_d15n = mean(d15N, na.rm = TRUE),
     sd_d15n = sd(d15N, na.rm = TRUE),
     CV_d15n = sd_d15n/mean_d15n, 
     .groups = 'drop'
-    ) %>% 
-  drop_na() %>% # 112 to 90
-  filter(CV_d15n > 0 & CV_d15n < 1) %>%  # 90 to 87
-  # now summarize by taxon
+  ) 
+
+cv_ffg <- invertdata %>%
+  filter(d15N >= 0) |>   # must remove negative data for CV calculatoins n=6
+  filter(taxon_code %in% focustaxon$taxon_code) %>%
+  group_by(site_id, ffg) %>%
+  summarise(
+    n = n(),
+    mean_d15n = mean(d15N, na.rm = TRUE),
+    sd_d15n = sd(d15N, na.rm = TRUE),
+    CV_d15n = sd_d15n/mean_d15n, 
+    .groups = 'drop'
+  ) 
+
+
+# Summary tables for CV data ------------
+
+# cv_ffg |>
+#   pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
+
+## Summarize CV by species  ---------
+
+cv_taxa_means <- cv_taxa %>% 
+  drop_na(CV_d15n) %>% # 112 to 90
+  # filter(CV_d15n > 0 & CV_d15n < 1) %>%  # 90 to 87 WHAT DOS THIS REMOVE????
   group_by(taxon_code) %>% 
   summarise(
     n = n(),
@@ -60,20 +79,8 @@ lowCV_dat <- invertdata %>%
     )
 
 
-lowCV_dat_FFG <- invertdata %>% 
-  # remove shredderd
-  filter(ffg!= "Shredder")%>% 
-  # summarize by site and ffg
-  group_by(ffg,site_id) %>% 
-  summarise(
-    n = n(),
-    mean_d15n = mean(d15N, na.rm = TRUE),
-    sd_d15n = sd(d15N, na.rm = TRUE),
-    CV_d15n = sd_d15n/mean_d15n
-    ) %>%
-  filter(CV_d15n < 6) %>% 
-  drop_na() %>% 
-  # now summarize by ffgs
+cv_ffg_means <- cv_ffg %>%
+  drop_na(CV_d15n) %>%
   group_by(ffg) %>% 
   summarise(
     n = n(),
@@ -90,21 +97,21 @@ lowCV_dat_FFG <- invertdata %>%
 
 ## Plot -----------
 
-CV_taxon <- lowCV_dat %>%
+(CV_taxon <- cv_taxa_means %>%
   ggplot(aes(x=reorder(taxon_code, mean_CV, median), y = mean_CV))+
-  geom_pointrange(ymin = lowCV_dat$low, ymax = lowCV_dat$high,
+  geom_pointrange(ymin = cv_taxa_means$low, ymax = cv_taxa_means$high,
                   size = 1, color = "black", fill = "#666666", shape = 21)+
   theme_classic()+
   coord_flip()+
   labs(x = "Taxon", y = expression('CV (' ~{delta}^15*N~')'))+  
   theme(axis.title  = element_blank(), 
         axis.text = element_text(size = 12, color = "black"))+  
-  scale_y_continuous(limits = c(0,0.60), breaks = c(0.00,0.20,0.40,0.60))
+  scale_y_continuous(limits = c(-.1,0.60), breaks = c(0.00,0.20,0.40,0.60)))
 
 
-CV_FFG <- lowCV_dat_FFG %>%
+(CV_FFG <- cv_ffg_means %>%
   ggplot(aes(x=reorder(ffg, mean_CV, median), y = mean_CV))+    
-  geom_pointrange(ymin = lowCV_dat_FFG$low, ymax = lowCV_dat_FFG$high,
+  geom_pointrange(ymin = cv_ffg_means$low, ymax = cv_ffg_means$high,
                   size = 1, color = "black", fill = "#666666", shape = 21)+                                                  #use a boxplot
   theme_classic()+
   coord_flip()+
@@ -112,7 +119,7 @@ CV_FFG <- lowCV_dat_FFG %>%
   theme(axis.title  = element_text(size = 16, color = "black"),
         axis.text = element_text(size = 12, color = "black"),
         axis.title.y  = element_blank())+ 
-  scale_y_continuous(limits = c(0,0.60), breaks = c(0.00,0.20,0.40,0.60))
+  scale_y_continuous(limits = c(0,0.60), breaks = c(0.00,0.20,0.40,0.60)))
 
 
 CVfig_All <- cowplot::plot_grid(

@@ -3,9 +3,9 @@
 
 ## Prep
 
-library(tidyverse) 
-library(here)
-library(cowplot)
+# library(tidyverse) 
+# library(here)
+# library(patchwork)
 
 
 ## Data --------------
@@ -26,67 +26,54 @@ focusffg <- as.factor(invertdata$ffg) %>% levels()
 # of sites multiply by 100 to get percentage
 
 # by taxa
-Distr_dat <- invertdata %>%
-  group_by(taxon_code, site_id) %>% 
-  summarise(n = n()) %>%
-  mutate(presence = 1) %>%
-  group_by(taxon_code) %>%
-  summarise(distr = (sum(presence)/n_sites)*100) %>%
-  filter(taxon_code %in% focustax)
+Distr_dat <- invertdata |> 
+  distinct(site_id, taxon_code) |> 
+  mutate(presence = 1) |> 
+  group_by(taxon_code) |> 
+  summarise(distr = (sum(presence)/n_sites)*100) 
 
 # by ffg
 Distr_dat_FFG <- invertdata %>%
-  filter(taxon_code %in% focustax) %>% 
-  group_by(ffg, site_id) %>%
-  summarise(n = n()) %>%
+  # filter(taxon_code %in% focustax) %>% 
+  distinct(ffg, site_id) %>%
   mutate(presence = 1) %>%
   group_by(ffg) %>%
   summarise(distr = (sum(presence)/n_sites)*100)
 
 
+# plot function
+plot_dist <- function(df, x_cat){
+  df |>
+    ggplot(aes(x = fct_reorder({{ x_cat }}, distr, median), y = distr)) +
+    geom_segment(aes(xend = {{x_cat}}), yend = 0, colour = "grey50") +
+    geom_point(size = 3,color = "black", shape = 21, fill = "#666666") + 
+    geom_hline(yintercept = 75, color = "red", size =1, linetype = "dashed") +
+    scale_y_continuous(limits = c(0,100)) +
+    ylab("Sites present (%)") + 
+    theme_bw(base_size = 12) + 
+    theme(
+      axis.line = element_line(size = .5),
+      axis.ticks.length = unit(.25, "cm"),
+      axis.text.x = element_text(hjust = 1, vjust = 0.5, angle = 90),
+      panel.grid.major.x = element_blank(),   # No vert grid lines
+      panel.grid.minor.y = element_blank(),   # No vert grid lines
+    )
+}
+
+
+
 ## Plot
 
-DistFigTaxon <- Distr_dat %>%
-  filter(taxon_code %in% focustax) %>%
-  ggplot(aes(x=fct_reorder(taxon_code, distr, median), y=distr)) +
-  geom_point(size = 3,color = "black", shape = 21, fill = "#666666") + 
-  #coord_flip()+
-  geom_hline(yintercept = 75, color = "red", size =1, linetype = "dashed") +
-  scale_y_continuous(limits = c(0,100)) +
-  theme_classic() +
-  labs(x = "Taxon", y = "Percent of Sites") +
-  theme(
-    axis.text = element_text(size = 12, face = "bold", color = "black"),
-    axis.title = element_text(size = 14, face = "bold", color = "black"),
-    title = element_text(size = 16, face = "bold", color = "black"),
-    axis.text.x = element_text(angle = 90),
-    axis.title.x = element_blank(),
-    axis.text.y = element_text(size = rel(0.8)),
-    axis.text.x.bottom = element_text(size = 10, face = "bold", color = "black")
-    )
+p1 <- Distr_dat |> plot_dist(taxon_code) + xlab("Taxonomic Group")
+p2 <- Distr_dat_FFG |> plot_dist(ffg) + xlab("Functional Feeding Group")
 
-DistFigFFG <- Distr_dat_FFG %>% 
-  ggplot(aes(x = fct_reorder(ffg, distr, median), y = distr))+
-  geom_hline(yintercept = 75, color = "red", linetype = "dashed", size = 1)+
-  geom_point(size = 3, shape = 21, color = "black",fill = "#666666")+
-  #coord_flip()+
-  scale_y_continuous(limits = c(0,100)) +
-  labs(x = "FFG", y = "Percent of Sites")+
-  theme_classic() +
-  theme(
-    axis.title = element_blank(),
-    axis.text = element_text(size = 10, face = "bold", color = "black"),
-    title = element_text(size = 16, face = "bold", color = "black"),
-    axis.text.x = element_text(angle = 90)
-    )
+patch <- p1 | p2
 
-# panel plot
-distFigAll <- cowplot::plot_grid(
-  DistFigTaxon, DistFigFFG, labels = c("A","B"), align = "hv",
-  label_size = 18, ncol = 2, nrow = 1, label_x = 0.15, label_y = 0.99
-  )
+patch_ann <- patch + 
+  plot_layout(widths = c(2, 1)) & 
+  plot_annotation(tag_levels = "A")
 
 # save 
-ggsave(here("out", "combined_distribution.png"), 
-       distFigAll, device = ragg::agg_png,
-       units = "in", width = 8.5, height = 6)
+ggsave(here("out", "crit1_combined_distribution.png"), 
+       patch_ann, device = ragg::agg_png,
+       units = "in", width = 8.5, height = 4)

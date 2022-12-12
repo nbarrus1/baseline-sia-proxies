@@ -38,9 +38,9 @@ fishdat <- isodat %>%
 uncorrected_data<- fishdat %>% 
   left_join(PCAdat, by = "site_id") %>% 
   mutate(discFactor = ((-0.281*d15N)+5.879)) %>% 
-  dplyr::select(-sample_year, -d13C, -stream_name, -unique_id, -sia_sample_id, -sample_hitch,
-                -compartment, -resource, -length_mm, -d13C_scl, -d15N_scl, -CN, -lulc_del, 
-                -lulc_ag, -PC2) %>% 
+  # dplyr::select(-sample_year, -d13C, -stream_name, -unique_id, -sia_sample_id, -sample_hitch,
+  #               -compartment, -resource, -length_mm, -d13C_scl, -d15N_scl, -CN, -lulc_del, 
+  #               -lulc_ag, -PC2) %>% 
   mutate(TP_nobase = d15N/discFactor) 
 
 
@@ -75,12 +75,21 @@ corrected_data<- fishdat %>%
   left_join(ffg_meanN, by = "site_id") %>% 
   left_join(PCAdat, by = "site_id") %>% 
   mutate(discFactor = ((-0.281*d15N)+5.879)) %>% 
-  dplyr::select(-sample_year, -d13C, -stream_name, -unique_id, -sia_sample_id, -sample_hitch,
-                -compartment, -resource, -length_mm, -d13C_scl, -d15N_scl, -CN, -lulc_del, 
-                -lulc_ag, -PC2) %>% 
-  gather(key = "model", value = "correction", 4:30) %>% 
+  # dplyr::select(-sample_year, -d13C, -stream_name, -unique_id, -sia_sample_id, -sample_hitch,
+  #               -compartment, -resource, -length_mm, -d13C_scl, -d15N_scl, -CN, -lulc_del, 
+  #               -lulc_ag, -PC2) %>% 
+  gather(key = "model", value = "correction", 16:42) %>% 
   drop_na(correction) %>% 
   mutate(TP = (((d15N-correction)/discFactor)+2)) 
+
+
+#quick plot to view the uncorrected TP data
+
+corrected_data %>% 
+  ggplot(aes (x = PC1, y = TP, color = taxon_code))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
 
 ######Plot Trophic Position vs. gradient ######
 
