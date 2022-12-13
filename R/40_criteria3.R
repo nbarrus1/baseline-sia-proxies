@@ -1,11 +1,82 @@
 
 # Criteria #3: models of baseline, basal resources, and ffg
 # do the different potential baselines responded similarly to PC1 changes?
-## Prep
+
+# Plot model outputs for all the groups
 
 
-# functions
-lm_PC1 <- function(df) {lm(mean_d15n ~ PC1, data = df)}
+## Vizualize --------------------
+
+# by food web compartment
+alldat |> 
+  ggplot(aes(PC1, d15N)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(vars(resource))
+
+# inverts by ffg
+invertdata |> 
+  ggplot(aes(PC1, d15N)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(vars(ffg))
+
+# inverts by taxa
+invertdata |> 
+  ggplot(aes(PC1, d15N)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(vars(taxon_code))
+
+
+## Fit models --------------------------
+
+# ffgs
+mods_ffg <- invertdata |> 
+  group_by(ffg) |> 
+  nest() |> 
+  mutate(
+    fit_pc1 = map(data, ~ lm(d15N ~ PC1, data = .x)),
+    tidy = map(fit_pc1, tidy),
+    glance = map(fit_pc1, glance),
+    augment = map(fit_pc1, augment),
+    conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
+  ) 
+
+# taxa
+mods_taxa <- invertdata |> 
+  group_by(taxon_code) |> 
+  nest() |> 
+  mutate(
+    fit_pc1 = map(data, ~ lm(d15N ~ PC1, data = .x)),
+    tidy = map(fit_pc1, tidy),
+    glance = map(fit_pc1, glance),
+    augment = map(fit_pc1, augment),
+    conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
+  ) 
+
+mods_baseline <- alldat |> 
+  filter(resource %in% c("biofilm","detritus", "photo")) |> 
+  group_by(resource) |> 
+  nest() |> 
+  mutate(
+    fit_pc1 = map(data, ~ lm(d15N ~ PC1, data = .x)),
+    tidy = map(fit_pc1, tidy),
+    glance = map(fit_pc1, glance),
+    augment = map(fit_pc1, augment),
+    conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
+  ) 
+
+mods_baseline |> unnest(glance)
+mods_ffg |> unnest(glance)
+mods_taxa |> unnest(glance) |> print(n=100)
+
+
+
+
+
+#### OLD CODE #######
+
 
 
 ## Data ----------------------------------
@@ -223,7 +294,7 @@ pc1vsd15n <- pc1dat %>%                                                         
   ggplot(aes(x=PC1, y = mean_d15n))+                                         #plot usein d15n as a function of lulc_nat
   geom_point()+                                                              #plot points
   geom_smooth(data = sig_taxa_pc1, method = lm, color = "black", fill = "#333333")+                                                  #plot best fit line using linear model
-  facet_rep_wrap(~taxon_code)+                                                        #separate by taxon
+  lemon::facet_rep_wrap(~taxon_code)+                                                        #separate by taxon
   theme_classic()+                                                           #use theme classic
   labs(x = "Longitudinal Gradient (PC1)", y =  expression({delta}^15*N~'\u2030'),
        title = "C) Primary Consumers (Taxa)")+ #give labels expression tells it to use delta format
@@ -234,7 +305,7 @@ pc1vsd15n <- pc1dat %>%                                                         
         strip.background = element_rect(fill = "white", linetype = 0))+
   scale_y_continuous(limits = c(-1,12), breaks = c(0,4,8,12))+
   scale_x_continuous(limits = c(0,10), breaks = c(0,3,6,9))+
-  stat_cor(label.y = 12, aes(label = paste(..rr.label.., format_pval(..p..), sep = "*`,`~")), size = 3)
+  ggpubr::stat_cor(label.y = 12, aes(label = paste(..rr.label.., format_pval(..p..), sep = "*`,`~")), size = 3)
 
 
 #####Plot of pc1 and d15N with ffg as facet####

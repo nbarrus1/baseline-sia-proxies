@@ -1,10 +1,6 @@
 # Prepare data sets for analyses
 
 
-# TO DO
-# - add in missing data were needed - some sites-taxa combos are missing and data exist
-# - get diet data for focal species
-
 # libraries
 library(tidyverse)
 library(here)
@@ -75,7 +71,7 @@ alldat <- isodat %>%
     ) %>% 
   filter(site_id != "LR01") %>%  # remove test site
   filter(sample_year == "2016") %>%  # keep only 2016 data
-  filter(compartment %in% c("biofilm", "detritus" , "fish", "invert"))
+  filter(resource %in% c("biofilm", "detritus" , "fish", "invert", "photo"))
 
 # Subset data for analysis
 invertdata <- alldat %>% 
