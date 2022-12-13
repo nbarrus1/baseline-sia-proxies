@@ -9,21 +9,16 @@
 library(tidyverse)
 library(here)
 library(patchwork)
+library(broom)
 
-theme_clean <- function() {
-  theme_minimal(base_size = 12) +
-    theme(
-      plot.background = element_rect(fill = "white", color = NA), 
-      panel.border = element_blank(),
-      panel.grid.minor = element_blank(),
-      plot.title = element_text(face = "bold"),
-      axis.title = element_text(face = "bold"),
-      strip.text = element_text(face = "bold", size = rel(1), hjust = 0),
-      strip.background = element_rect(fill = "grey80", color = NA),
-      legend.title = element_text(face = "bold"))
+
+# functions
+lower_ci <- function(mean, se, n, conf_level = 0.95){
+  lower_ci <- mean - qt(1-((1-conf_level)/2),n-1)*se
 }
-
-
+upper_ci <- function(mean, se, n, conf_level = 0.95){
+  upper_ci <- mean + qt(1-((1-conf_level)/2),n-1)*se
+}
 
 ## Data --------------------
 
@@ -80,13 +75,11 @@ alldat <- isodat %>%
     ) %>% 
   filter(site_id != "LR01") %>%  # remove test site
   filter(sample_year == "2016") %>%  # keep only 2016 data
-  # keep only needed recourse groups
-  filter(resource %in% c(
-    "biofilm", "detritus" , "fish", "invert"))
+  filter(compartment %in% c("biofilm", "detritus" , "fish", "invert"))
 
 # Subset data for analysis
 invertdata <- alldat %>% 
-  filter(resource == "invert") %>% 
+  filter(compartment == "invert") %>% 
   group_by(taxon_code) %>% 
   mutate(n = n()) %>% 
   ungroup() %>% 
@@ -101,8 +94,8 @@ primprodat <- alldat %>%
   group_by(taxon_code, site_id, PC1) %>% 
   summarise(mean_d15N = mean(d15N), .groups = "drop")
 
-# fish species
-isodat |> filter(compartment == "fish") |> arrange(site_id, taxon_code) |> 
-  write_csv(here("data","fish.csv"))
+# # fish species
+# isodat |> filter(compartment == "fish") |> arrange(site_id, taxon_code) |> 
+#   write_csv(here("data","fish.csv"))
 
 

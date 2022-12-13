@@ -3,15 +3,13 @@
 # do the different potential baselines responded similarly to PC1 changes?
 ## Prep
 
-# libraries
-library(tidyverse) 
-library(here)
 
 # functions
 lm_PC1 <- function(df) {lm(mean_d15n ~ PC1, data = df)}
 
 
 ## Data ----------------------------------
+
 pc1dat <- invertdata %>% 
   group_by(taxon_code, PC1) %>% 
   summarise(mean_d15n = mean(d15N))
