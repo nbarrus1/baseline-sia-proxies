@@ -15,14 +15,14 @@ alldat |>
   facet_wrap(vars(resource))
 
 # inverts by ffg
-invertdata |> 
+invertdata_sub |> 
   ggplot(aes(PC1, d15N)) + 
   geom_point() + 
   geom_smooth(method = "lm") + 
   facet_wrap(vars(ffg))
 
 # inverts by taxa
-invertdata |> 
+invertdata_sub |> 
   ggplot(aes(PC1, d15N)) + 
   geom_point() + 
   geom_smooth(method = "lm") + 
@@ -67,9 +67,9 @@ mods_baseline <- alldat |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
   ) 
 
-mods_baseline |> unnest(glance)
 mods_ffg |> unnest(glance)
 mods_taxa |> unnest(glance) |> print(n=100)
+mods_baseline |> unnest(glance)
 
 
 
