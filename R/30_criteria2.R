@@ -42,8 +42,12 @@ cv_ffg <- invertdata %>%
 
 ### Summary tables for CV data ------------
 
-# cv_ffg |>
-#   pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
+cv_taxa |>
+  pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
+
+cv_ffg |>
+  pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
+
 
 ## Summarize mean CV  ---------
 
@@ -58,9 +62,11 @@ cv_taxa_means <- cv_taxa %>%
     ) %>% 
   mutate(
     se = sd_CV/sqrt(n),
-    low = lower_ci(mean_CV,se,n),
-    high = upper_ci(mean_CV,se,n)
-    )%>%
+    # low = lower_ci(mean_CV,se,n),
+    # high = upper_ci(mean_CV,se,n)
+    low = mean_CV - sd_CV,
+    high = mean_CV + sd_CV
+    ) %>%
   left_join(invert_group, by = "taxon_code") |> 
   rename(group = ffg)
 
@@ -75,8 +81,10 @@ cv_ffg_means <- cv_ffg %>%
     ) %>% 
   mutate(
     se = sd_CV/sqrt(n),
-    low = lower_ci(mean_CV,se,n),
-    high = upper_ci(mean_CV,se,n)
+    # low = lower_ci(mean_CV,se,n),
+    # high = upper_ci(mean_CV,se,n)
+    low = mean_CV - sd_CV,
+    high = mean_CV + sd_CV
     ) |> 
   mutate(group = ffg)
 
@@ -133,6 +141,10 @@ fit_taxa <- lm(log(CV_d15n) ~ taxon_code, data = cv_taxa)
 anova(fit_taxa)
 agricolae::HSD.test(fit_taxa,'taxon_code',group = FALSE,console = TRUE, unbalanced = TRUE) 
 
+aov_taxa <- aov(log(CV_d15n)~taxon_code, data=cv_taxa)
+summary(aov_taxa)
+TukeyHSD(aov_taxa)
+
 
 # FFGs
 
@@ -148,6 +160,12 @@ car::leveneTest(log(cv_ffg$CV_d15n), group = cv_ffg$ffg)
 fit_ffg <- lm(log(CV_d15n) ~ ffg, data = cv_ffg)
 anova(fit_ffg)
 agricolae::HSD.test(fit_ffg,'ffg',group = FALSE,console = TRUE, unbalanced = TRUE) 
+
+aov_ffg <- aov(log(CV_d15n)~ffg, data=cv_ffg)
+summary(aov_ffg)
+TukeyHSD(aov_ffg)
+
+
 
 
 
