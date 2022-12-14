@@ -10,12 +10,13 @@ focustaxon <- Distr_dat %>%
 foucusffg <- Distr_dat_FFG %>% 
   filter(distr >= 75)
 
+invertdata_sub <- invertdata %>%
+  filter(d15N >= 0) |>   # must remove negative data for CV calculations n=3
+  filter(taxon_code %in% focustaxon$taxon_code)
 
 ## CV by site and group ----------
 
-cv_taxa <- invertdata %>%
-  filter(d15N >= 0) |>   # must remove negative data for CV calculations n=6
-  filter(taxon_code %in% focustaxon$taxon_code) %>%
+cv_taxa <- invertdata_sub %>%
   group_by(site_id, taxon_code) %>%
   summarise(
     n = n(),
@@ -27,9 +28,7 @@ cv_taxa <- invertdata %>%
   left_join(invert_group, by = "taxon_code") |> 
   arrange(ffg, taxon_code)
 
-cv_ffg <- invertdata %>%
-  filter(d15N >= 0) |>   # must remove negative data for CV calculatoins n=6
-  filter(taxon_code %in% focustaxon$taxon_code) %>%
+cv_ffg <- invertdata_sub %>%
   group_by(site_id, ffg) %>%
   summarise(
     n = n(),
