@@ -5,28 +5,33 @@
 # Plot model outputs for all the groups
 
 
-## Vizualize --------------------
+## Visualize --------------------
 
-# by food web compartment
+# by fishes
 alldat |> 
-  ggplot(aes(PC1, d15N)) + 
+  filter(taxon_code %in% c("BNT", "CKC", "WHS")) |> 
+  ggplot(aes(PC1, d15N, color = taxon_code)) + 
   geom_point() + 
-  geom_smooth(method = "lm") + 
-  facet_wrap(vars(resource))
+  geom_smooth(method = "lm", se = FALSE) 
+
+# resources
+alldat |> 
+  filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
+  ggplot(aes(PC1, d15N, color = taxon_code)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) 
 
 # inverts by ffg
 invertdata_sub |> 
-  ggplot(aes(PC1, d15N)) + 
+  ggplot(aes(PC1, d15N, color = ffg)) + 
   geom_point() + 
-  geom_smooth(method = "lm") + 
-  facet_wrap(vars(ffg))
+  geom_smooth(method = "lm", se = FALSE) 
 
 # inverts by taxa
 invertdata_sub |> 
-  ggplot(aes(PC1, d15N)) + 
+  ggplot(aes(PC1, d15N, color = taxon_code)) + 
   geom_point() + 
-  geom_smooth(method = "lm") + 
-  facet_wrap(vars(taxon_code))
+  geom_smooth(method = "lm", se = FALSE) 
 
 
 ## Fit models --------------------------
@@ -55,9 +60,21 @@ mods_taxa <- invertdata |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
   ) 
 
+mods_fish <- alldat |> 
+  filter(taxon_code %in% c("BNT", "CKC", "WHS")) |> 
+  group_by(taxon_code) |> 
+  nest() |> 
+  mutate(
+    fit_pc1 = map(data, ~ lm(d15N ~ PC1, data = .x)),
+    tidy = map(fit_pc1, tidy),
+    glance = map(fit_pc1, glance),
+    augment = map(fit_pc1, augment),
+    conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
+  ) 
+
 mods_baseline <- alldat |> 
-  filter(resource %in% c("biofilm","detritus", "photo")) |> 
-  group_by(resource) |> 
+  filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
+  group_by(taxon_code) |> 
   nest() |> 
   mutate(
     fit_pc1 = map(data, ~ lm(d15N ~ PC1, data = .x)),
@@ -69,6 +86,7 @@ mods_baseline <- alldat |>
 
 mods_ffg |> unnest(glance)
 mods_taxa |> unnest(glance) |> print(n=100)
+mods_fish |> unnest(glance)
 mods_baseline |> unnest(glance)
 
 
