@@ -8,6 +8,14 @@ library(tidyverse)
 library(gridExtra)
 
 
+# Calc TP
+
+
+# Regress TP against PC1 and run ANCOVA
+
+
+
+
 # Data ----------------
 #find the mean d15N for each baseline proxy at our sites across our three sampling periods
 
