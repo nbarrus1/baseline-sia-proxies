@@ -67,7 +67,7 @@ alldat <- isodat %>%
   left_join(invert_group, by = "taxon_code") %>% 
   select(
     unique_id, sia_sample_id, sample_year, stream_name, site_id, compartment,
-    resource, taxon_code, d15N, d13C, CN, PC1, ffg
+    resource, taxon_code, length_mm, d15N, d13C, CN, PC1, ffg
     ) %>% 
   filter(site_id != "LR01") %>%  # remove test site
   filter(sample_year == "2016") %>%  # keep only 2016 data
@@ -75,6 +75,7 @@ alldat <- isodat %>%
 
 # Subset data for analysis
 invertdata <- alldat %>% 
+  select(-length_mm) |> 
   filter(compartment == "invert") %>% 
   group_by(taxon_code) %>% 
   mutate(n = n()) %>% 
@@ -82,6 +83,7 @@ invertdata <- alldat %>%
   filter(n >= 5)
 
 primprodat <- alldat %>% 
+  select(-length_mm) |> 
   filter(taxon_code == "Biofilm" | taxon_code == "Seston") %>% 
   group_by(taxon_code) %>% 
   mutate(n = n()) %>% 
