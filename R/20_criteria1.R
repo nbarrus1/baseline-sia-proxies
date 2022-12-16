@@ -18,6 +18,20 @@ focusffg <- as.factor(invertdata$ffg) %>% levels()
 # add all values of presence by the group taxon divide total number 
 # of sites multiply by 100 to get percentage
 
+# fishes
+# alldat |> 
+#   filter(compartment=="fish")  |> 
+#   distinct(site_id, taxon_code) |> 
+#   mutate(presence = 1) |> 
+#   group_by(taxon_code) |> 
+#   summarise(distr = (sum(presence)/n_sites)*100) |> 
+#   ggplot(aes(x = fct_reorder(taxon_code, distr, median), y = distr, fill = taxon_code)) +
+#   geom_segment(aes(xend = taxon_code), yend = 0, colour = "grey50") +
+#   geom_point(size = 2, color = "black", shape = 21) + 
+#   geom_hline(yintercept = 50, color = "black", size = .75, linetype = "dashed") +
+#   coord_flip()
+# bnt, whs, lnd, ckc, and lns all found at 50% of sites in 2016
+
 # by taxa
 Distr_dat <- invertdata |> 
   distinct(site_id, taxon_code) |> 
