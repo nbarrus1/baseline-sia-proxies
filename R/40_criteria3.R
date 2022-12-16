@@ -9,7 +9,8 @@
 
 # by fishes
 alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS")) |> 
+  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+  # filter(compartment=="fish") |> 
   ggplot(aes(PC1, d15N, color = taxon_code)) + 
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) 
@@ -61,7 +62,7 @@ mods_taxa <- invertdata |>
   ) 
 
 mods_fish <- alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS")) |> 
+  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
