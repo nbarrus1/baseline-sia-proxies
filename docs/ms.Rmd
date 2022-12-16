@@ -72,7 +72,7 @@ Predictable changes in the ratio of heavy to light N isotopes (15N/14N; δ15N) i
 
 However, cross-site comparisons of trophic structure cannot be done without suitable isotopic baselines because nitrogen isotope ratios (15N/14N, d15N) in aquatic biota can vary substantially across space due to anthropomorphic N loading. Further, consensus about optimal screening criteria for baseline selection is lacking. 
 
-Here, we assess the applicability and utility of a recently proposed screening procedure for identifying suitable baseline organisms in Danish stream systems by applying it to streams spanning the Rocky Mountain Great Plains ecotone in North America. Individual taxa and aggregated groups representing similar feeding modes were hierarchically screen based on 4 criteria: 1) easy to collect with a wide distribution, 2) low within-site d15N variation, 3) d15N values reflect system-specific d15N variability, 4) produce consumer trophic positions independent of system-specific d15N variability.
+Here, we assess the applicability and utility of a recently proposed screening procedure for identifying suitable baseline organisms by applying it to streams spanning the Rocky Mountain Great Plains ecotone in North America. Individual taxa and aggregated groups representing similar feeding modes were hierarchically screen based on 4 criteria: 1) easy to collect with a wide distribution, 2) low within-site d15N variation, 3) d15N values reflect system-specific d15N variability, 4) produce consumer trophic positions independent of system-specific d15N variability.
 
 
 
@@ -111,19 +111,19 @@ Suitable primary consumer taxa to use as baseline indicators in temperate stream
 
 ### Study site selection
 
-We sampled sixteen sites in three streams that span the Rocky Mountain to Great Plains ecotone (Figure 1).  We selected sites  to represent an environmental gradient based on elevation and land use that resulted in a wide variation of d15N values at the base of local food webs. All streams are snowmelt dominated with peak flows occurring in the spring and base flows occurring in mid-summer. Their watersheds transition from forested land at high elevations to agriculturally dominated land with some urbanization at lower elevations.  
+We sampled sixteen sites in three streams that span the Rocky Mountain to Great Plains ecotone (Figure 1).  We selected sites to represent an environmental gradient based on elevation and land use that resulted in a wide variation of d15N values at the base of local food webs. All streams are snowmelt dominated with peak flows occurring in the spring and base flows occurring in mid-summer. Their watersheds transition from forested land at high elevations to agriculturally dominated land with some urbanization at lower elevations.  
 
 ### Longitudinal position index 
 
-We used a synthetic variable developed by Maitland (2020) to index a site’s relative location along the Rocky Mountain--Great Plains gradient. Briefly, The variable combines seven metrics of environmental conditions at a site into an index of longitudinal stream position using the Axis 1 score from a principal component analysis (PCA). Input variables to the PCA were elevation (m a.s.l.), stream slope (km/km), distance to North Platte River (km), Strahler stream order, mean August water temperature (℃), upstream drainage area (km2), and stream width (m). The synthetic index (PC1) explained 78% of site-level variation among the 16 study sites and described changes in environmental conditions from upstream, high-elevation, cold-water streams to downstream, low-elevation, warm-water streams. 
+We used a synthetic variable developed by Maitland (2020) to index a site’s relative location along the Rocky Mountain--Great Plains gradient. Briefly, The variable combines seven metrics of environmental conditions at a site into an index of longitudinal stream position using the Axis 1 score from a principal component analysis (PCA). Input variables to the PCA were elevation (m a.s.l.), stream slope (km/km), distance to North Platte River (km), Strahler stream order, mean August water temperature (℃), upstream drainage area (km2), and stream width (m). The synthetic index (PC1) explained 78% of site-level variation among the 16 study sites and described changes in environmental conditions from high-elevation forested streams to grassland to low-elevation prairie streams. 
 
-The synthetic index is positively correlated with d15N values of basal resources and primary consumers (Maitland 2020). d15N values increase moving from upstream to downstream, likely due to changing land use. δ15N of aquatic biota can be highly correlated with nitrogen (% of total N load) from livestock and fertilizers (Anderson and Cabana 2006), and in this system, the relative amount of natural land cover decreases and pastureland and agricultural land increase moving downstream. Therefore, we used the synthetic index (PC1) a priori as the environmental variable determining background δ15N levels. 
+The synthetic index is positively correlated with d15N values of basal resources and primary consumers . d15N values increase moving from upstream to downstream, likely due to changing land use. δ15N of aquatic biota can be highly correlated with nitrogen (% of total N load) from livestock and fertilizers (Anderson and Cabana 2006), and in this system, the relative amount of natural land cover decreases and pastureland and agricultural land increase moving downstream (Maitland 2020). Therefore, we used the synthetic index (PC1) a priori as the environmental variable determining background δ15N levels. 
 
 ### Sample collection
 
-Samples were collected during summer of 2016. Detailed sampling proceedure are in Maitland (2020). Breifely, basal resources were sampled  in June, July, and August to account for fine-scale temporal variation in d15N (Jardine et al., 2014).  Seston was collected by filtering three replicates of up to 10 L of water onto pre-combusted (550 °C, 4 hours) filters (Whatman GF/F, 47 mm O) in the field using a modified portable drill pump (Kelso & Baker, 2016). Biofilm was collected by scraping five cobble-sized rocks within the reach.  invertebrate were collected during the same three sampling events during the summer of 2016. A D-framed kick net was used in a variety of habitats (i.e. riffle, pools, macrophytes, and river margins) to collect a representative sample of the macroinvertebrate assemblage.  invertebrate were kept in filtered stream water for 24 hours to allow for gut clearance, then frozen. Muscle tissue samples were obtained from fish collected during the August sampling event using a backpack electrofishing unit (Smith-Root, Vancouver, WA).  Brown Trout Salmo trutta (Linnaeus, 1758), Creek Chub Semotilus atromaculatus (Person, Year), White Sucker Catostomus commersonii (Lacépède, 1803), were used because these species were found at greater than 50% of the sites.  To minimize the number of fish euthanized, a muscle plug using a 5-mm biopsy punch was taken from fish greater than 300 mm in length. The remaining fish used for SIA were euthanized with a lethal dose of MS-222, placed on ice and then frozen upon returning to the lab. Those fish not selected for SIA were returned to the stream. 
+Samples were collected during summer of 2016. Detailed sampling procedure are in Maitland (2020). Basal resources were sampled  in June, July, and August to account for fine-scale temporal variation in d15N (Jardine et al., 2014).  Seston was collected by filtering three replicates of up to 10 L of water onto pre-combusted (550 °C, 4 hours) filters (Whatman GF/F, 47 mm O) in the field using a modified portable drill pump (Kelso & Baker, 2016). Biofilm was collected by scraping five cobble-sized rocks within the reach.  invertebrate were collected during the same three sampling events during the summer of 2016. A D-framed kick net was used in a variety of habitats (i.e. riffle, pools, macrophytes, and river margins) to collect a representative sample of the macroinvertebrate assemblage.  invertebrate were kept in filtered stream water for 24 hours to allow for gut clearance, then frozen. Muscle tissue samples were obtained from fish collected during the August sampling event using a backpack electrofishing unit (Smith-Root, Vancouver, WA).  Brown Trout Salmo trutta (Linnaeus, 1758), Creek Chub Semotilus atromaculatus (Person, Year), White Sucker Catostomus commersonii (Lacépède, 1803), were used because these species were found at greater than 50% of the sites.  To minimize the number of fish euthanized, a muscle plug using a 5-mm biopsy punch was taken from fish greater than 300 mm in length. The remaining fish used for SIA were euthanized with a lethal dose of MS-222, placed on ice and then frozen upon returning to the lab. Those fish not selected for SIA were returned to the stream. 
 
-invertebrate were identified to family level using an invertebrate guide (Merritt et al. 2008). We classified invertebrate into FFGs using a trait-based method. We obtained invertebrate trophic trait data from the USA Freshwater Biological Traits Database (Vieira et al. 2006), and then assigned trait affinity scores from 0 (absent) to 3 (strong affinity) using “fuzzy-coding” (Chevene et al. 1994). Because larvae and adults have different feeding behaviors, Elmidae were separated by life stage during identification.
+Invertebrate were identified to family level using an invertebrate guide (Merritt et al. 2008). We split one family (Elmidae) into two groups based on life stage. We classified invertebrate into FFGs using a trait-based method. We obtained invertebrate trophic trait data from the USA Freshwater Biological Traits Database (Vieira et al. 2006), and then assigned trait affinity scores from 0 (absent) to 3 (strong affinity) using “fuzzy-coding” (Chevene et al. 1994). Because larvae and adults have different feeding behaviors, Elmidae were separated by life stage during identification.
 
 <!-- When possible, we used individual macroinvertebrates for SIA but for small taxa we pooled individuals to ensure enough material for SIA. Muscle fillets were removed from the cranial dorsal portion of each fish. Samples were oven died (60 $^\circ$C, 48 hours), ground into a homogenous powder, and weighed to the nearest 0.001 mg. Animal samples (~1.0 mg) and basal resources (~2.0 mg) were weighed into 8 x 5-mm tin capsules and analyzed for d15N, d13C, %C, %N and C:N ratio at the University of Wyoming Stable Isotope Facility using a Delta Plus XP Continuous Flow Stable Isotope Ratio Mass Spectrometer (Thermo Finnigan, Bremen, Germany) coupled to a Costech Analytical 4010 elemental analyzer. Carbon (13C:12C) and nitrogen (15N:14N) isotope ratios (R) were estimated relative to their respective International Atomic Energy Agency standards (Pee Dee Belemnite limestone and atmospheric nitrogen). Working internal standards were run as controls throughout analysis to ensure accurate measurements. Isotopic values are reported in per mill delta notation \@ref(eq:ratio): -->
 
@@ -133,57 +133,78 @@ invertebrate were identified to family level using an invertebrate guide (Merrit
 
 <!-- where dN is either N15 or c13, and R is the ratio of the heavy to lighter isotope. Analytical error (i.e., 1 SD of lab standard) of sample runs was estimated at 0.07‰ (d13C) and 0.18‰ (d15N) for the invertebrates, and 0.04‰ (d13C) and 0.10‰ (d15N) for the fish.  -->
 
-### Baseline criteria and data analysis
+### Baseline criteria and TP
 
-We used the four criteria proposed by Kristensen et al. (2016) to assess the suitability of invertebrate taxa for use as isotopic baselines.  The criteria are: (1) have a wide geographic distribution, (2) have low with-in site variation of d15N values, indicating a uniform nonomnivorous feeding mode, (3) have d15N values that correlate the longitudinal gradient index, indicating they reflect background d15N variability, (4) provide trophic position estimates of secondary consumers independent of systematic d15N variability. 
+Individual taxa and aggregated groups representing similar feeding modes were hierarchically screened following Kristensen et al. (2016) on 4 criteria: 1) easy to collect with a wide distribution, 2) low within-site d15N variation, 3) d15N values reflect system-specific d15N variability, 4) produce consumer trophic positions independent of system-specific d15N variability.
 
-#### Criteria 1: Geographic Distribution 
+To assess the geographic distribution of different taxa and FFGs, we calculated the percent of sites where the taxon or group was present (@fig-occurance). Of the 21 macroinvertebrate families analyzed among our study sites, we excluded 8 because they were rare (occurred in > 8 sites): Pteronarcidae, Leptoplhebiidae, Athericidae, Ameletidae, Physidae,
+*Gammarus*, Brachycenntridae, and Perlodidae. 
 
-To assess the geographic distribution of different taxa and FFGs, we calculated the percent of sites where the taxon or group was present.  
+```{r fig-occurance}
+#| label: fig-occurance
+#| fig-cap: Dotplot showing the percent of sites where each taxa (A) and functional feeding group (B) occured in. 
+#| out-width: 75%
+knitr::include_graphics(here("out","crit1_distributions.png"))
+```
 
-#### Criteria 2: Low Coefficient of Variation 
+### Data analysis
 
-To assess within-site d15 variability among groups, we calculated the coefficient of variation (CV) for d15N values as SD/mean. A low coefficient of variation for d15N indicates that a baseline candidate has a non-omnivorous diet. 
+All analysis was done in R version 3.2 (R Core Team, 2019). 
 
-We used one-way analysis of variance (ANOVA) to test for differences in within-site variation (CV) among baselines. Separate analyses were done on individual taxa and FFGs.  The CV values were square root or log transformed to ensure normality.  We used the Tukey HSD post hoc tests for pairwise-comparison using an alpha of 0.05.
+#### Criteria 2: CVs
+
+To assess within-site d15 variability among groups, we calculated the coefficient of variation (CV) for d15N values as SD/mean. A low coefficient of variation for d15N indicates that a baseline candidate has a uniform, non-omnivorous diet. 
+
+We used one-way analysis of variance (ANOVA) to test for differences in within-site variation (CV) among baselines taxa and feeding groups.  The CV values were log transformed to ensure normality.  We used the Tukey HSD post hoc tests for pairwise-comparison using an alpha of 0.05.
 
 #### Criteria 3: Correlation with Longitudinal Gradient 
 
-For all invertebrate taxa and FFGs, we used least squares linear regression to assess relationships between the baseline’s d15N position at sites along the longitudinal stream gradient.  We wished to compare our baselines’ relationships to the longitudinal gradient with those of the basal resources. So, we did separate least squares linear regressions for two of the basal resources at our sites and compared R2 values between the baselines and the resources at our sites.  The R2 value of our basal resources represent the minimum level of variation that our alternate baselines should explain in order to be used as alternatives to the traditional method (e.g. all basal resources across a season).   
-<!-- Baselines with significant ($P \le 0.05$) relationships with the longitudinal gradient and that had R2 values equal to or greater than the basal resources were considered suitable baselines. -->
+We used least squares linear regression to assess relationships between d15N values of different food web compartments and the longitudinal gradient (PC1). 
+
+To investigate whether the potential baselines responded differently to a change in % natural land use, we used analysis of covariance (ANCOVA) to test for differences in the δ15N slopes of the different baseline organisms relative to % natural land use (comparison of regression lines).
 
 #### Criteria 4: Trophic Position Estimates Independent of Longitudinal Gradient
 
-We calculated trophic positions for Brown Trout, Creek Chub, and White Sucker using each macroinvertebrate taxa and FFG as a baseline following (Post, 2002):
+We assessed the implications of the different baselines for the TP estimates of fishes by comparing TP estimates of 3 common fish species. TP was calculated following (Post, 2002):
 
 <!-- \begin{equation} -->
 
 <!-- \end{equation} -->
 
-where TPConsumer is the trophic position of each individual fish at a site, d15NConsumer is the d15N signature of each individual fish, d15NBaseline is the mean d15N signature of the baseline at each site, d15N is the discrimination factor for each trophic transfer, and TLBaseline is the expected trophic level of the baseline. Discrimination factor were estimated using the methods of Caut et al. (2009).  
+where TPConsumer is the trophic position of each individual fish at a site, d15NConsumer is the d15N signature of each individual fish, d15NBaseline is the mean d15N signature of the baseline at each site, d15N is the discrimination factor for each trophic transfer, and TLBaseline is the expected trophic level of the baseline. Discrimination factor were estimated following Caut et al. (2009).  
 
-To assess the difference between corrected TP estimates and uncorrected TP estimates of Brown Trout, Creek Chub, and White Sucker, we modified the above equation by removing the baseline correction. The resulting formula is:
+We used least squares linear regression to assess relationships between TP values of fish and the longitudinal gradient (PC1). 
 
-<!-- \begin{equation} -->
+We use analysis of covariance (ANCOVA) to test for differences in slopes among baselines and FFGs. If the slopes of TP estimates were different from 0 (i.e., absence of relationship) it signifies TP is independent of the systemic d15N gradeint. 
 
-<!-- \end{equation} -->
-
-We use analysis of covariance (ANCOVA) to test for differences in slopes among baselines and FFGs. Separate analyses were done on taxa and FFG.  The TP estimates were square root or log transformed to ensure normality.  After each ANCOVA, we used the Tukey HSD method for pairwise-comparison across each baseline. All analysis was done in R version 3.2 (R Core Team, 2019). 
 
 
 ## Results
 
-### Criteria 1: Geographic Distribution
+### Criteria 2: CVs
 
-We found 21 macroinvertebrate families among our study sites. We split one family (Elmidae) into two groups based on life stage. Eight taxa were found in at least 75% of sites.  Chironomidae, Elmidae-larvae, Elmidae-adult, Heptaganeidae, and Hydropyschidae were the most common taxa and were found at all sites (Table 1). Perlidae was the least common taxon and was found at six sites. Collectors, Grazers, Filterers, and Aquatic Predators were the most common functional feeding groups (FFG) and were found at all sites. Shredders were only found at 63% of sites. Twelve baselines (8 taxa, 4 FFGs) were considered sufficiently distributed and used in further analysis.
+Mean d15N values of specific taxa and feeding groups ranged from `round(min(cv_taxa$CV_d15n), 4)` to `round(max(cv_taxa$CV_d15n), 4)` and from `round(min(cv_ffg$CV_d15n), 4)` to `round(max(cv_ffg$CV_d15n), 4)`, respectively (SUP TABLES).
 
-### Criteria 2: Low Coefficient of Variation
+We found significant differences in the CVs among taxa (ANOVA; F7,103 = 4.661, P > 0.001; @fig-cv A). Simulidae had the lowest within-site d15N variation for a specific taxa, expect compared to Hydropyschidae (@fig-cv A, Table SUP-XX) 
 
-We calculated the coefficient of variation (CV) for d15N at each site for the 12 sufficiently distributed baselines (8 taxa, 4 FFGs).  We found significant differences in the CVs for the taxa (ANOVA test; F11,26 = 2.96, P = 0.002; Figure 2). Simuliidae had the smallest CV across sites and Elmidae-adult had the largest (Figure 2).  Additionally, Simuliidae were 0.19 units lower than Elmidae-adult, 0.17 units lower than Chironimidae, and, although marginally significant, 0.15 units lower than Elmidae-larvae (Tukey HSD tests; P = 0.011 for Elmidae-adult; P = 0.032 for Chironomidae; P =  0.071 for Elmidae-adult; Figure 2).  Simuliidae were not statistically different from Dytiscidae, Baetidae, Heptaganeidae and Hydropyschidae. We found marginally significant differences among the FFG baselines (ANOVA test; F3,57 = 2.49, P = 0.070; Figure 2). Filterers were 0.18 units lower than Grazers (Tukey HSD tests; P = 0.047; Figure 2).  Filterers were not statistically different from Predators or Collectors.
+We also found significant differences among the FFGs (ANOVA; F4,68 = 13.94, P < 0.001; Figure 2; @fig-cv B). Filterer had the lowest within-site d15N variation for FFGs, and collectors has the highest (@fig-cv B, Table SUP-XX)
+
+
+```{r fig-cv}
+#| label: fig-cv
+#| fig-cap: Dotplot showing the percent of sites where each taxa (A) and functional feeding group (B) occured in. 
+#| out-width: 75%
+knitr::include_graphics(here("out","crit1_distributions.png"))
+```
+
 
 ### Criteria 3: Correlation with Environmental d15N 
 
+
+
+
 The two basal resources, biofilm and seston, had d15N signatures that were significantly (P > =  0.05) correlated with the longitudinal stream gradient (PC1) (Figure 3; Table 1). All eight of the well distributed taxa and all FFG’s had d15N signatures that were significantly correlated with PC1 (Figure 3). The amount of variation in d15N signatures captured by the longitudinal gradient was similar among the two basal resources, eight sufficiently distributed taxa and the four FFGs.
+
 
 ### Criteria 4: Trophic Position Estimates Independent of Environmental d15N
 
