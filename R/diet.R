@@ -1,6 +1,6 @@
 
 
-diet <- read_csv(here("data", "tmp_diet.csv"))
+diet <- read_csv(here("data", "diet.csv"))
 
 
 diet |> 
