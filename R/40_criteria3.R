@@ -88,9 +88,76 @@ mods_baseline <- alldat |>
 mods_ffg |> unnest(glance)
 mods_taxa |> unnest(glance) |> print(n=100)
 mods_fish |> unnest(glance)
-mods_baseline |> unnest(glance)
 
 
+temp <- mods_baseline |> 
+  unnest(tidy)|>
+  unnest(conf_int)|>
+  filter(term == "PC1")|>
+  select(11)
+
+
+
+temp2 <- as.numeric(temp$conf_int[,1])
+
+temp[[11]]
+
+temp$conf_int[1:4]
+## Plot ---------
+
+#plot f(x)n
+
+plot_sigcorr <- function(df, x_cat){
+  upp <- df |>
+    unnest(tidy)|>
+    unnest(conf_int)|>
+    filter(term == "PC1")|
+    select(Conf)
+           
+           sig = if_else(low > 0, true = "yes", false = "no"))|>
+    ggplot(aes(x = fct_reorder({{ x_cat }}, estimate, median), y = estimate, fill = sig)) +
+    geom_linerange(ymin = low, ymax = upp) +
+    geom_point(size = 2, color = "black", shape = 21) + 
+    coord_flip()+
+    scale_y_continuous(limits = c(0.00,1.02), breaks = seq(0.00,1.00,.25)) +
+    labs(y = "", fill = "P < 0.05") + 
+    theme_bw(base_size = 12) + 
+    theme(
+      axis.line = element_line(linewidth = .5),
+      axis.ticks.length = unit(.25, "cm"),
+      axis.title.y = element_text(vjust = 2), 
+      panel.grid.minor.x = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      panel.grid.major.y = element_blank(), 
+      plot.margin = unit(c(0,0,0,0), "cm")
+    )
+}
+
+p5 <- mods_ffg|>plot_sigcorr(x_cat = ffg)+labs(x = "Feeding Group")
+p6 <- mods_taxa|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Taxonomic Group")
+p7 <- mods_fish|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Fish Species")
+p8 <- mods_baseline|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Basal Resource")
+
+
+plot_sigcorr <- function(df, x siglevel = 0.05) {
+  df |>
+    unnest(glance)|>
+    ggplot(aes(x=reorder(model,adj.r.squared, median), y = adj.r.squared))+         #adj r sqr vs reorderd taxon   
+    geom_point(aes(color = sig),size = 3)+              #plot points with shape 21, color balck, grey fill, size 3
+    theme_classic()+                                                                #use theme classic
+    facet_grid(~group, scales = "free", space = "free_x")+
+    labs(x = "Model", y = "Adjusted R squared")+                     #rename labels
+    theme(axis.title = element_text(size = 14, face = "bold", color = "black"),     #adjust axis titles
+          axis.text = element_text(size = 10, face ="bold", color ="black"),        #adjust axis text
+          axis.text.x = element_text(angle = 90),
+          legend.title = element_blank(),
+          legend.text = element_text(size = 12, face = "bold", color = "black"),
+          strip.background = element_rect(fill = "white", linetype = 0),
+          strip.text = element_text(size = 12, face = "bold", color = "black", angle = 90))+                                  #adjust x axist text so it is vertical not horzontal
+    scale_shape_discrete(breaks = c("A","B","C"),labels = c("Taxa","FFG", "Basal Resources"))+    #add red line at 0.6 that is dashed and size 1
+    scale_y_continuous(limits = c(-0.2, 1.0))+
+    scale_color_manual(values = c("midnightblue", "darkred")) 
+}
 
 
 
