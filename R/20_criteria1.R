@@ -57,13 +57,13 @@ plot_dist <- function(df, x_cat){
     ggplot(aes(x = fct_reorder({{ x_cat }}, distr, median), y = distr, fill = group)) +
     geom_segment(aes(xend = {{x_cat}}), yend = 0, colour = "grey50") +
     geom_point(size = 2, color = "black", shape = 21) + 
-    geom_hline(yintercept = 75, color = "black", size = .75, linetype = "dashed") +
+    geom_hline(yintercept = 75, color = "black", linewidth = .75, linetype = "dashed") +
     coord_flip()+
     scale_y_continuous(limits = c(0,102), breaks = seq(0,100,25)) +
     labs(y = "", fill = "Feeding Group") + 
     theme_bw(base_size = 12) + 
     theme(
-      axis.line = element_line(size = .5),
+      axis.line = element_line(linewidth = .5),
       axis.ticks.length = unit(.25, "cm"),
       axis.title.y = element_text(vjust = 2), 
       panel.grid.minor.x = element_blank(),

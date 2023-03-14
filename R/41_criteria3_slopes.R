@@ -1,4 +1,3 @@
-
 # Criteria #3: models of baseline, basal resources, and ffg
 # do the different potential baselines responded similarly to PC1 changes?
 
@@ -85,24 +84,24 @@ mods_baseline <- alldat |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
   ) 
 
+temp <- mods_ffg |> unnest(conf_int)
 
-mods_ffg |> unnest(glance)
-
-
+temp$conf_int
 ## Plot ---------
 
+#plot f(x)n
 
-plot_sigcorr <- function(df, x_cat, siglevel = 0.05) {
-  df |>
-    unnest(glance)|>
-    mutate(sig = if_else(p.value < siglevel, true = "y", false = "n")) |>
-    ggplot(aes(x=fct_reorder({{ x_cat }}, adj.r.squared, median), y = adj.r.squared, fill = sig))+         #adj r sqr vs reorderd taxon   
-    geom_segment(aes(xend = {{x_cat}}), yend = 0, colour = "grey50") +
+plot_slopes <- function(df, x_cat){
+  upp <- df |>
+    unnest(tidy)|>
+    unnest(conf_int)|>
+    filter(term == "PC1")|>
+    ggplot(aes(x = fct_reorder({{ x_cat }}, estimate, median), y = estimate)) +
+    geom_linerange(ymin = conf_int, ymax = upp) +
     geom_point(size = 2, color = "black", shape = 21) + 
     coord_flip()+
-    scale_y_continuous(limits = c(0,1), breaks = seq(0,1,.25)) +
-    scale_fill_manual(values = c("midnightblue","darkred"))+
-    labs(y = "", fill = "p < 0.05") + 
+    scale_y_continuous(limits = c(0.00,1.02), breaks = seq(0.00,1.00,.25)) +
+    labs(y = "", fill = "P < 0.05") + 
     theme_bw(base_size = 12) + 
     theme(
       axis.line = element_line(linewidth = .5),

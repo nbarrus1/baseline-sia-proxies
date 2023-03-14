@@ -66,7 +66,7 @@ alldat <- isodat %>%
   # left_join(LandUsedat, by = "site_id") %>% 
   left_join(invert_group, by = "taxon_code") %>% 
   select(
-    unique_id, sia_sample_id, sample_year, stream_name, site_id, compartment,
+    unique_id, sample_year, stream_name, site_id, compartment,
     resource, taxon_code, length_mm, d15N, d13C, CN, PC1, ffg
     ) %>% 
   filter(site_id != "LR01") %>%  # remove test site
