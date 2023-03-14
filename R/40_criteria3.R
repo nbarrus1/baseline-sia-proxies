@@ -105,7 +105,7 @@ plot_sigcorr <- function(df, x_cat, siglevel = 0.05) {
     labs(y = "", fill = "p < 0.05") + 
     theme_bw(base_size = 12) + 
     theme(
-      axis.line = element_line(linewidth = .5),
+      # axis.line = element_line(linewidth = .5),
       axis.ticks.length = unit(.25, "cm"),
       axis.title.y = element_text(vjust = 2), 
       panel.grid.minor.x = element_blank(),
