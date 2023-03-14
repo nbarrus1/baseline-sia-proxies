@@ -3,21 +3,75 @@
 
 ## Prep
 
-# libraries
-library(tidyverse) 
-library(gridExtra)
+###uncorrected
+
+#calculate TP
+TP_uncorrected <- alldat |> 
+  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP_uncorr = d15N/discFactor)
+
+#plot
+TP_uncorrected |> 
+  ggplot(aes(x = PC1, y = TP_uncorr, color = taxon_code))+
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) 
 
 
-# Calc TP
+###Corrected TP ####
+
+###Taxa
+
+#calculate mean d15N for each baseline at each site
+taxa_correction <- invertdata_sub |>
+  group_by(site_id,taxon_code)|>
+  summarise(correction = mean(d15N, na.rm = T),
+            correction_type = "taxa") %>% 
+  rename(baseline = taxon_code)
+
+#use mean d15N of the baseline (taxa) at each site to calculate corrected 
+#Trophic positions
+
+TP_taxa <- alldat |>
+  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |> 
+  left_join(taxa_correction, by = "site_id")|>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP_corrected = (((d15N-correction)/discFactor)+2))
+
+#plot the TPs for each fish spp.
+
+TP_taxa |> 
+  ggplot(aes(x = PC1, y = TP_corrected, color = baseline))+
+  facet_wrap(~taxon_code)+
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) 
+
+###ffg
+
+#calculate mean d15N for each baseline at each site
+ffg_correction <- invertdata_sub |>
+  group_by(site_id,ffg)|>
+  summarise(correction = mean(d15N, na.rm = T),
+            correction_type = "ffg") %>% 
+  rename(baseline = ffg)
+
+#use mean d15N of the baseline (taxa) at each site to calculate corrected 
+#Trophic positions
+TP_ffg <- alldat |>
+  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |> 
+  left_join(ffg_correction, by = "site_id")|>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP_corrected = (((d15N-correction)/discFactor)+2))
 
 
-# Regress TP against PC1 and run ANCOVA
+TP_ffg |> 
+  ggplot(aes(x = PC1, y = TP_corrected, color = baseline))+
+  facet_wrap(~taxon_code)+
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) 
 
 
-
-
-# Data ----------------
-#find the mean d15N for each baseline proxy at our sites across our three sampling periods
+##old code####
 
 
 meanNdatall <- invertdata %>% 
