@@ -8,32 +8,80 @@
 ## Visualize --------------------
 
 # by fishes
-alldat |> 
+p5 <- alldat |> 
   filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
   # filter(compartment=="fish") |> 
-  ggplot(aes(PC1, d15N, color = taxon_code)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
+  ggplot(aes(PC1, d15N, fill = taxon_code)) + 
+  geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
+  geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
+  scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
+  scale_color_viridis_d()+ 
+  scale_fill_viridis_d()+
+  labs(fill = "Fish Species", y = expression(' '~{delta}^15*N~' '),
+       x = "Longitudinal Gradient (PC1)")+
+  theme_bw(base_size = 12) + 
+  theme(
+    axis.line = element_line(size = .5),
+    axis.ticks.length = unit(.25, "cm"), 
+    panel.grid.minor.x = element_blank(), 
+    plot.margin = unit(c(0,0,0,0), "cm")
+  )
 
 # resources
-alldat |> 
+p6 <- alldat |> 
   filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
-  ggplot(aes(PC1, d15N, color = taxon_code)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
+  ggplot(aes(PC1, d15N, fill = taxon_code)) + 
+  geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
+  geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
+  scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
+  scale_color_viridis_d()+ 
+  scale_fill_viridis_d()+
+  labs(fill = "Basal Resource", y = expression(' '~{delta}^15*N~' '),
+       x = NULL)+
+  theme_bw(base_size = 12) + 
+  theme(
+    axis.line = element_line(size = .5),
+    axis.ticks.length = unit(.25, "cm"), 
+    panel.grid.minor.x = element_blank(), 
+    plot.margin = unit(c(0,0,0,0), "cm")
+  )
 
 # inverts by ffg
-invertdata_sub |> 
-  ggplot(aes(PC1, d15N, color = ffg)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
+p7 <- invertdata |> 
+  filter(ffg != "Shredder") |>
+  ggplot(aes(PC1, d15N, fill = ffg)) + 
+  geom_smooth(aes(color = ffg), method = "lm", se = FALSE, show.legend = F)+
+  geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
+  scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
+  scale_color_viridis_d()+ 
+  scale_fill_viridis_d()+
+  labs(fill = "Feeding Group", y = expression(' '~{delta}^15*N~' '),
+       x = NULL)+
+  theme_bw(base_size = 12) + 
+  theme(
+    axis.line = element_line(size = .5),
+    axis.ticks.length = unit(.25, "cm"), 
+    panel.grid.minor.x = element_blank(), 
+    plot.margin = unit(c(0,0,0,0), "cm")
+  )
 
 # inverts by taxa
-invertdata_sub |> 
-  ggplot(aes(PC1, d15N, color = taxon_code)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
-
+p8 <- invertdata_sub |> 
+  ggplot(aes(PC1, d15N, fill = taxon_code)) + 
+  geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
+  geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
+  scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
+  scale_color_viridis_d()+ 
+  scale_fill_viridis_d()+
+  labs(fill = "Taxonomic Group", y = expression(' '~{delta}^15*N~' '),
+       x = NULL)+
+  theme_bw(base_size = 12) + 
+  theme(
+    axis.line = element_line(size = .5),
+    axis.ticks.length = unit(.25, "cm"), 
+    panel.grid.minor.x = element_blank(), 
+    plot.margin = unit(c(0,0,0,0), "cm")
+  )
 
 ## Fit models --------------------------
 
@@ -50,7 +98,7 @@ mods_ffg <- invertdata |>
   ) 
 
 # taxa
-mods_taxa <- invertdata |> 
+mods_taxa <- invertdata_sub |> 
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
@@ -92,10 +140,10 @@ mods_ffg |> unnest(glance)
 ## Plot ---------
 
 
-plot_sigcorr <- function(df, x_cat, siglevel = 0.05) {
+plot_sigcorr <- function(df, x_cat, alpha = 0.05) {
   df |>
     unnest(glance)|>
-    mutate(sig = if_else(p.value < siglevel, true = "y", false = "n")) |>
+    mutate(sig = if_else(p.value < alpha, true = "y", false = "n")) |>
     ggplot(aes(x=fct_reorder({{ x_cat }}, adj.r.squared, median), y = adj.r.squared, fill = sig))+         #adj r sqr vs reorderd taxon   
     geom_segment(aes(xend = {{x_cat}}), yend = 0, colour = "grey50") +
     geom_point(size = 2, color = "black", shape = 21) + 
@@ -120,3 +168,5 @@ p6 <- mods_taxa|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Taxonomic Group")
 p7 <- mods_fish|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Fish Species")
 p8 <- mods_baseline|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Basal Resource")
 
+
+temp <- mods_fish %>% unnest(glance)
