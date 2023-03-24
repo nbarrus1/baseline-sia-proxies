@@ -37,7 +37,8 @@ invertdata_sub |>
 ## Fit models --------------------------
 
 # ffgs
-mods_ffg <- invertdata |> 
+mods_ffg <- invertdata |>
+  filter(ffg != "Shredder")|>
   group_by(ffg) |> 
   nest() |> 
   mutate(
@@ -49,7 +50,7 @@ mods_ffg <- invertdata |>
   ) 
 
 # taxa
-mods_taxa <- invertdata |> 
+mods_taxa <- invertdata_sub |> 
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
@@ -147,11 +148,14 @@ plot_data[[1]] <- plot_data[[1]] |> rename(taxon_code = ffg)
 
 plot_slopes <- function(df){
   df |>
-    ggplot(aes(x = fct_reorder(taxon_code, estimate, median), y = estimate)) +
+    ggplot(aes(x = fct_reorder(taxon_code, estimate, median), y = estimate, fill = taxon_code)) +
     geom_linerange(aes(ymin = X1, ymax = X2)) +
-    geom_point(size = 2, color = "black", shape = 21) + 
+    geom_point(size = 2, color = "black", shape = 21, show.legend = F) +
+    geom_hline(yintercept = 0, color = "black", linewidth = .75, linetype = "dashed") +
+    scale_fill_viridis_d()+
     coord_flip()+
-    labs(y = "", fill = "P < 0.05") + 
+    scale_y_continuous(limits = c(-.1,2), breaks = seq(0,2,.5))+
+    labs(y = "") + 
     theme_bw(base_size = 12) + 
     theme(
       axis.ticks.length = unit(.25, "cm"),
@@ -166,9 +170,34 @@ plot_slopes <- function(df){
 plot_slopes(plot_data[[2]])
 
 
-p5 <- plot_data[[1]]|>plot_slopes()+labs(x = "Feeding Group")
-p6 <- plot_data[[2]]|>plot_slopes()+labs(x = "Taxonomic Group")
-p7 <- plot_data[[3]]|>plot_slopes()+labs(x = "Fish Species")
-p8 <- plot_data[[4]]|>plot_slopes()+labs(x = "Basal Resource")
+p9 <- plot_data[[1]]|>
+  filter(taxon_code != "Shredder")|>
+  plot_slopes()+
+  labs(x = "Feeding Group",
+       y = NULL)
+  
+p10 <- plot_data[[2]]|>
+  plot_slopes()+
+  labs(x = "Taxonomic Group",
+       y = NULL)
+
+p11 <- plot_data[[3]]|>plot_slopes()+
+  labs(x = "Fish Species",
+       y = expression('slope ('~{beta}[1]~')'))
+
+p12 <- plot_data[[4]]|>plot_slopes()+
+  labs(x = "Basal Resource",
+       y = NULL)
 
 
+
+patch.crit3 <- p6+p12+p8+p10+p7+p9+p5+p11
+patch.crit3 <- p12+p6+p10+p8+p9+p7+p11+p5
+
+patch.crit3.annote <- patch.crit3+
+  plot_layout(ncol = 2,widths = c(1,2))& 
+  plot_annotation(tag_levels = "A")
+
+ggsave(here("out", "fig3_crit3.png"), 
+       patch.crit3.annote, device = ragg::agg_png,
+       units = "in", width = 8, height = 10)
