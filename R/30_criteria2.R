@@ -28,7 +28,8 @@ cv_taxa <- invertdata_sub %>%
   left_join(invert_group, by = "taxon_code") |> 
   arrange(ffg, taxon_code)
 
-cv_ffg <- invertdata_sub %>%
+cv_ffg <- invertdata %>%
+  filter(ffg != "Shredder") %>% 
   group_by(site_id, ffg) %>%
   summarise(
     n = n(),
@@ -45,7 +46,8 @@ cv_taxa |>
   pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
 
 cv_ffg |>
-  pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
+  pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n")) %>% 
+  filter(ffg != "Shredder")
 
 
 ## Summarize mean CV  ---------
@@ -94,9 +96,11 @@ plot_cvs <- function(df, x_cat){
   df |>
     ggplot(aes(x = fct_reorder({{ x_cat }}, mean_CV, median), y = mean_CV, fill = group)) +
     geom_linerange(ymin = df$low, ymax = df$high) +
-    geom_point(size = 2, color = "black", shape = 21) + 
+    geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
     coord_flip()+
-    scale_y_continuous(limits = c(0, .6), breaks = seq(0,.6,.2))  +
+    scale_y_continuous(limits = c(0, .63), breaks = seq(0,.6,.2))  +
+    scale_fill_manual(values = c("#440154FF","#404788FF","#287D8EFF",
+                                            "#29AF7FFF","#95D840FF"))+
     labs(y = "", fill = "Feeding Group") + 
     theme_bw(base_size = 12) + 
     theme(
@@ -107,18 +111,25 @@ plot_cvs <- function(df, x_cat){
     )
 }
 
-p3 <- cv_taxa_means |> plot_cvs(taxon_code) + labs(x = "Taxonomic Group")
-p4 <- cv_ffg_means |> plot_cvs(ffg) + labs(x = "Feeding Group", y = expression('CV (' ~{delta}^15*N~')'))
+p3 <- cv_taxa_means |> plot_cvs(taxon_code) + labs(x = NULL)
+
+p4 <- cv_ffg_means |> plot_cvs(ffg) + labs(x = NULL, y = expression('CV (' ~{delta}^15*N~')'))
 patch.cv <- p3 / p4
+
 patch.cv.annote <- patch.cv + 
-  plot_layout(heights = c(2, 1), guides = 'collect') & 
-  plot_annotation(tag_levels = "A")
+  plot_layout(heights = c(3, 1))
+
 patch.cv.annote
 
+patch.fig2 <- patch.dist.annote | patch.cv.annote
+patch.fig2.annotate<- patch.fig2 + 
+  plot_layout(guides = 'collect') & 
+  plot_annotation(tag_levels = "A")
+
 # save plot
-ggsave(here("out", "crit2_cvs.png"), 
-       patch.cv.annote, device = ragg::agg_png,
-       units = "in", width = 6, height = 6)
+ggsave(here("out", "fig2_crit1&crit2.png"), 
+       patch.fig2.annotate, device = ragg::agg_png,
+       units = "in", width = 10, height = 6)
 
 
 
@@ -127,9 +138,11 @@ ggsave(here("out", "crit2_cvs.png"),
 
 # Taxa 
 
+
 cv_taxa |> ggplot(aes(CV_d15n)) + geom_density()
 cv_taxa |> ggplot(aes(log(CV_d15n))) + geom_density()
 cv_taxa |> ggplot(aes(sqrt(CV_d15n))) + geom_density()
+
 
 shapiro.test(cv_taxa$CV_d15n)
 shapiro.test(log(cv_taxa$CV_d15n))

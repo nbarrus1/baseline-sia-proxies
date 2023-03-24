@@ -60,6 +60,8 @@ plot_dist <- function(df, x_cat){
     geom_hline(yintercept = 75, color = "black", linewidth = .75, linetype = "dashed") +
     coord_flip()+
     scale_y_continuous(limits = c(0,102), breaks = seq(0,100,25)) +
+    scale_fill_manual(values = c("#440154FF","#404788FF","#287D8EFF",
+                                 "#29AF7FFF","#95D840FF","#FDE725FF"))+
     labs(y = "", fill = "Feeding Group") + 
     theme_bw(base_size = 12) + 
     theme(
@@ -78,11 +80,6 @@ p1 <- Distr_dat |> plot_dist(taxon_code) + labs(x = "Taxonomic Group")
 p2 <- Distr_dat_FFG |> plot_dist(ffg) + labs(x = "Feeding Group", y = "Sites present (%)")
 patch.dist <- p1 / p2
 patch.dist.annote <- patch.dist + 
-  plot_layout(heights = c(3, 1), guides = 'collect') & 
-  plot_annotation(tag_levels = "A")
+  plot_layout(heights = c(3, 1))
 patch.dist.annote
 
-# save plot
-ggsave(here("out", "crit1_distributions.png"), 
-       patch.dist.annote, device = ragg::agg_png,
-       units = "in", width = 6, height = 6)
