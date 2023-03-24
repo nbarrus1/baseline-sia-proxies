@@ -1,11 +1,30 @@
 
 
 diet <- read_csv(here("data", "diet.csv"))|> 
-  left_join(PCAdat, by = "site_id") |> select(-PC2) 
+  left_join(PCAdat, by = "site_id") |> select(-PC2) %>% 
+  mutate(taxon_code = if_else(taxon_code == "BNT",
+                              true = "Brown Trout",
+                              false = if_else(taxon_code == "CKC",
+                                              true = "Creek Chub", 
+                                              false = if_else(taxon_code == "LND",
+                                                              true = "Longnose Dace",
+                                                              false = if_else(taxon_code == "LNS",
+                                                                              true = "Longnose Sucker",
+                                                                              false = if_else(taxon_code == "WHS",
+                                                                                              true = "White Sucker",
+                                                                                              false = taxon_code))))),
+         food_group = if_else(food_group == "amphib",
+                              true = "amphibian",
+                              false = if_else(food_group == "benthicInv",
+                                              true = "benthic invertebrate",
+                                              false = if_else(food_group == "terrInv",
+                                                              true = "terrestrial invertebrate",
+                                                              false = food_group))))
+  
 
 
 diet |> 
-  filter(taxon_code == "WHS") %>% 
+  filter(taxon_code == "White Sucker") %>% 
   ggplot(aes(y = IRI_100, x = fct_reorder(food_group, IRI_100), fill = food_group)) + 
   geom_boxplot(show.legend = F) + 
  # scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
@@ -33,7 +52,7 @@ p33 <- diet |>
   facet_wrap(~taxon_code)+
   scale_color_viridis_d()+ 
   scale_fill_viridis_d()+
-  labs(fill = "Stomach Content", y = "TP",
+  labs(fill = "Food Group", y = "IRI (%)",
        x = "PC1")+
   theme_bw(base_size = 12) + 
   theme(
@@ -43,9 +62,10 @@ p33 <- diet |>
     plot.margin = unit(c(0,0,0,0), "cm")
   )
 
-ggsave(here("out", "fig5_stomachcontent.png"), 
+ggsave(here("out", "fig4_stomachcontent.png"), 
        p33, device = ragg::agg_png,
-       units = "in", width = 8, height = 5)
+       units = "in", width = 9
+       , height = 5)
 
 
 diet_ancova <- diet |>
