@@ -76,7 +76,7 @@ plot_dist <- function(df, x_cat){
 }
 
 ## Plot
-p1 <- Distr_dat |> plot_dist(taxon_code) + labs(x = "Taxonomic Group")
+p1 <- Distr_dat |> plot_dist(taxon_code) + labs(x = "Taxonomic Group", y = "Sites present (%)")
 p2 <- Distr_dat_FFG |> plot_dist(ffg) + labs(x = "Feeding Group", y = "Sites present (%)")
 patch.dist <- p1 / p2
 patch.dist.annote <- patch.dist + 

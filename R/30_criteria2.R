@@ -111,7 +111,7 @@ plot_cvs <- function(df, x_cat){
     )
 }
 
-p3 <- cv_taxa_means |> plot_cvs(taxon_code) + labs(x = NULL)
+p3 <- cv_taxa_means |> plot_cvs(taxon_code) + labs(x = NULL, y = expression('CV (' ~{delta}^15*N~')'))
 
 p4 <- cv_ffg_means |> plot_cvs(ffg) + labs(x = NULL, y = expression('CV (' ~{delta}^15*N~')'))
 patch.cv <- p3 / p4
