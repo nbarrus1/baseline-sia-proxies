@@ -30,6 +30,16 @@ taxa_correction <- invertdata_sub |>
             correction_type = "taxa") %>% 
   rename(baseline = taxon_code)
 
+basal_taxa_correction <- alldat |>
+  filter(compartment == "baseline")|>
+  filter(taxon_code != "macrophtye")|>
+  group_by(site_id,taxon_code)|>
+  summarise(correction = mean(d15N,na.rm = T),
+            correction_type = "taxa") %>% 
+  rename(baseline = taxon_code)
+
+  
+
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
 
@@ -39,6 +49,15 @@ TP_taxa <- alldat |>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2)) 
 
+TP_taxa_basal <-alldat |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
+  left_join(basal_taxa_correction, by = "site_id")|>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP = (((d15N-correction)/discFactor)+1)) 
+
+
+TP_taxa <- TP_taxa %>% 
+  bind_rows(TP_taxa_basal)
 #plot the TPs for each fish spp.
 
 TP_taxa |> 
@@ -57,6 +76,14 @@ ffg_correction <- invertdata |>
             correction_type = "ffg") %>% 
   rename(baseline = ffg)
 
+bulk_basal_correction <- alldat |>
+  filter(compartment == "baseline")|>
+  filter(taxon_code != "macrophtye")|>
+  group_by(site_id)|>
+  summarise(correction = mean(d15N,na.rm = T),
+            correction_type = "ffg",
+            baseline = "Bulk Basal") 
+
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
 TP_ffg <- alldat |>
@@ -64,6 +91,15 @@ TP_ffg <- alldat |>
   left_join(ffg_correction, by = "site_id")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2))
+
+TP_bulk_basal <- alldat |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
+  left_join(bulk_basal_correction, by = "site_id")|>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP = (((d15N-correction)/discFactor)+1))
+
+TP_ffg <- TP_ffg %>% 
+  bind_rows(TP_bulk_basal)
 
 
 TP_ffg |> 
