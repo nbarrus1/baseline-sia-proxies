@@ -43,11 +43,14 @@ cv_ffg <- invertdata %>%
 ### Summary tables for CV data ------------
 
 cv_taxa |>
-  pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n"))
+  group_by(taxon_code) %>% 
+  summarise(CV = mean(CV_d15n),
+            SD = sd(CV_d15n))
 
 cv_ffg |>
-  pivot_wider(names_from = "ffg", values_from = c("mean_d15n", "sd_d15n", "CV_d15n", "n")) %>% 
-  filter(ffg != "Shredder")
+  group_by(ffg) %>% 
+  summarise(CV = mean(CV_d15n),
+            SD = sd(CV_d15n))
 
 
 ## Summarize mean CV  ---------
