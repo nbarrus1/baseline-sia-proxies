@@ -303,12 +303,12 @@ patch.crit4.ffg.annote <- patch.crit4.ffg+
   plot_annotation(tag_levels = "A")
 patch.crit4.ffg.annote
 
-ggsave(here("out", "fig5_crit4.png"), 
-       patch.crit4.taxa.annote, device = ragg::agg_png,
+ggsave(here("out", "fig5_crit4.pdf"), 
+       patch.crit4.taxa.annote, device = pdf,
        units = "in", width = 8, height = 11)
 
-ggsave(here("out", "fig6_crit4.png"), 
-       patch.crit4.ffg.annote, device = ragg::agg_png,
+ggsave(here("out", "fig6_crit4.pdf"), 
+       patch.crit4.ffg.annote, device = pdf,
        units = "in", width = 8, height = 11)
 ###ancovas###--------------------
 
