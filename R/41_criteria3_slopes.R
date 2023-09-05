@@ -8,7 +8,7 @@
 
 # by fishes
 alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
   # filter(compartment=="fish") |> 
   ggplot(aes(PC1, d15N, color = taxon_code)) + 
   geom_point() + 
@@ -62,7 +62,7 @@ mods_taxa <- invertdata_sub |>
   ) 
 
 mods_fish <- alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
@@ -191,7 +191,6 @@ p12 <- plot_data[[4]]|>plot_slopes()+
 
 
 
-patch.crit3 <- p6+p12+p8+p10+p7+p9+p5+p11
 patch.crit3 <- p12+p6+p10+p8+p9+p7+p11+p5
 
 patch.crit3.annote <- patch.crit3+

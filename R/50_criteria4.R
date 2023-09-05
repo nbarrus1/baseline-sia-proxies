@@ -7,7 +7,7 @@
 
 #calculate TP
 TP_uncorrected <- alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = d15N/discFactor,
          baseline = "uncorrected")
@@ -30,15 +30,34 @@ taxa_correction <- invertdata_sub |>
             correction_type = "taxa") %>% 
   rename(baseline = taxon_code)
 
+basal_taxa_correction <- alldat |>
+  filter(compartment == "baseline")|>
+  filter(taxon_code != "macrophtye")|>
+  group_by(site_id,taxon_code)|>
+  summarise(correction = mean(d15N,na.rm = T),
+            correction_type = "taxa") %>% 
+  rename(baseline = taxon_code)
+
+  
+
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
 
 TP_taxa <- alldat |>
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |> 
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
   left_join(taxa_correction, by = "site_id")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2)) 
 
+TP_taxa_basal <-alldat |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
+  left_join(basal_taxa_correction, by = "site_id")|>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP = (((d15N-correction)/discFactor)+1)) 
+
+
+TP_taxa <- TP_taxa %>% 
+  bind_rows(TP_taxa_basal)
 #plot the TPs for each fish spp.
 
 TP_taxa |> 
@@ -57,13 +76,30 @@ ffg_correction <- invertdata |>
             correction_type = "ffg") %>% 
   rename(baseline = ffg)
 
+bulk_basal_correction <- alldat |>
+  filter(compartment == "baseline")|>
+  filter(taxon_code != "macrophtye")|>
+  group_by(site_id)|>
+  summarise(correction = mean(d15N,na.rm = T),
+            correction_type = "ffg",
+            baseline = "Bulk Basal") 
+
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
 TP_ffg <- alldat |>
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |> 
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
   left_join(ffg_correction, by = "site_id")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2))
+
+TP_bulk_basal <- alldat |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
+  left_join(bulk_basal_correction, by = "site_id")|>
+  mutate(discFactor = ((-0.281*d15N)+5.879),
+         TP = (((d15N-correction)/discFactor)+1))
+
+TP_ffg <- TP_ffg %>% 
+  bind_rows(TP_bulk_basal)
 
 
 TP_ffg |> 
@@ -144,55 +180,55 @@ plot_slopes_TP <- function(df){
       panel.grid.minor.x = element_blank(),
       panel.grid.minor.y = element_blank(),
       panel.grid.major.y = element_blank(), 
-      plot.margin = unit(c(0,0,0,0), "cm")
+      plot.margin = unit(c(0,.1,0,0), "cm")
     )
 }
 
 ###ffg plots
-p13 <- plot_data_crit4[[1]]|>filter(taxon_code == "BNT")|>
+p13 <- plot_data_crit4[[1]]|>filter(taxon_code == "Brown Trout")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Feeding Group")
-p14 <- plot_data_crit4[[1]]|>filter(taxon_code == "CKC")|>
+p14 <- plot_data_crit4[[1]]|>filter(taxon_code == "Creek Chub")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Feeding Group")
-p15 <- plot_data_crit4[[1]]|>filter(taxon_code == "LND")|>
+p15 <- plot_data_crit4[[1]]|>filter(taxon_code == "Longnose Dace")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Feeding Group")
-p16 <- plot_data_crit4[[1]]|>filter(taxon_code == "LNS")|>
+p16 <- plot_data_crit4[[1]]|>filter(taxon_code == "Longnose Sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Feeding Group")
-p17 <- plot_data_crit4[[1]]|>filter(taxon_code == "WHS")|>
+p17 <- plot_data_crit4[[1]]|>filter(taxon_code == "White Sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Feeding Group",
-       y = "TP")
+       y = expression('slope ('~{beta}[1]~')'))
 
 #taxa plots
-p18 <- plot_data_crit4[[2]]|>filter(taxon_code == "BNT")|>
+p18 <- plot_data_crit4[[2]]|>filter(taxon_code == "Brown Trout")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Taxonomic Group")
-p19 <- plot_data_crit4[[2]]|>filter(taxon_code == "CKC")|>
+p19 <- plot_data_crit4[[2]]|>filter(taxon_code == "Creek Chub")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Taxonomic Group")
-p20 <- plot_data_crit4[[2]]|>filter(taxon_code == "LND")|>
+p20 <- plot_data_crit4[[2]]|>filter(taxon_code == "Longnose Dace")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Taxonomic Group")
-p21 <- plot_data_crit4[[2]]|>filter(taxon_code == "LNS")|>
+p21 <- plot_data_crit4[[2]]|>filter(taxon_code == "Longnose Sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Taxonomic Group")
-p22 <- plot_data_crit4[[2]]|>filter(taxon_code == "WHS")|>
+p22 <- plot_data_crit4[[2]]|>filter(taxon_code == "White Sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Taxonomic Group",
-       y = "TP")
+       y = expression('slope ('~{beta}[1]~')'))
 
 ######scatter plots to show data
 
@@ -222,7 +258,7 @@ df |>
   geom_smooth(aes(color = baseline), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
   scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
-  scale_y_continuous(limits = c(1, 8.3), breaks = seq(0,8,2))+
+  #scale_y_continuous(limits = c(1, 8.3), breaks = seq(0,8,2))+
   facet_wrap(~taxon_code)+
   scale_color_viridis_d()+ 
   scale_fill_viridis_d()+
@@ -238,32 +274,42 @@ df |>
 }
 
 #ffg scatters
-p23 <- TP_ffg_plot |> filter(taxon_code == "BNT") |>plot_TP_scatter()
-p24 <- TP_ffg_plot |> filter(taxon_code == "CKC") |>plot_TP_scatter()
-p25 <- TP_ffg_plot |> filter(taxon_code == "LND") |>plot_TP_scatter()
-p26 <- TP_ffg_plot |> filter(taxon_code == "LNS") |>plot_TP_scatter()
-p27 <- TP_ffg_plot |> filter(taxon_code == "WHS") |>plot_TP_scatter()+
+p23 <- TP_ffg_plot |> filter(taxon_code == "Brown Trout") |>plot_TP_scatter()
+p24 <- TP_ffg_plot |> filter(taxon_code == "Creek Chub") |>plot_TP_scatter()
+p25 <- TP_ffg_plot |> filter(taxon_code == "Longnose Dace") |>plot_TP_scatter()
+p26 <- TP_ffg_plot |> filter(taxon_code == "Longnose Sucker") |>plot_TP_scatter()
+p27 <- TP_ffg_plot |> filter(taxon_code == "White Sucker") |>plot_TP_scatter()+
   labs(x = "PC1")
 
 ###taxa scatters
 
-p28 <- TP_taxa_plot |> filter(taxon_code == "BNT") |>plot_TP_scatter()
-p29 <- TP_taxa_plot |> filter(taxon_code == "CKC") |>plot_TP_scatter()
-p30 <- TP_taxa_plot |> filter(taxon_code == "LND") |>plot_TP_scatter()
-p31 <- TP_taxa_plot |> filter(taxon_code == "LNS") |>plot_TP_scatter()
-p32 <- TP_taxa_plot |> filter(taxon_code == "WHS") |>plot_TP_scatter()+
+p28 <- TP_taxa_plot |> filter(taxon_code == "Brown Trout") |>plot_TP_scatter()
+p29 <- TP_taxa_plot |> filter(taxon_code == "Creek Chub") |>plot_TP_scatter()
+p30 <- TP_taxa_plot |> filter(taxon_code == "Longnose Dace") |>plot_TP_scatter()
+p31 <- TP_taxa_plot |> filter(taxon_code == "Longnose Sucker") |>plot_TP_scatter()
+p32 <- TP_taxa_plot |> filter(taxon_code == "White Sucker") |>plot_TP_scatter()+
   labs(x = "PC1")
 
-patch.crit4 <- p18+p28+p13+p23+p19+p29+p14+p24+p20+p30+p15+p25+p21+p31+p16+p26+p22+p32+p17+p27
+patch.crit4.taxa <- p18+p28+p19+p29+p20+p30+p21+p31+p22+p32
+patch.crit4.ffg <- p13+p23+p14+p24+p15+p25+p16+p26+p17+p27
 
-patch.crit4.annote <- patch.crit4+
-  plot_layout(ncol = 4,widths = c(1,2,1,2))& 
+patch.crit4.taxa.annote <- patch.crit4.taxa+
+  plot_layout(ncol = 2,widths = c(2,3))& 
   plot_annotation(tag_levels = "A")
-patch.crit4.annote
+patch.crit4.taxa.annote
 
-ggsave(here("out", "fig4_crit4.png"), 
-       patch.crit4.annote, device = ragg::agg_png,
-       units = "in", width = 20, height = 20)
+patch.crit4.ffg.annote <- patch.crit4.ffg+
+  plot_layout(ncol = 2,widths = c(2,3))& 
+  plot_annotation(tag_levels = "A")
+patch.crit4.ffg.annote
+
+ggsave(here("out", "fig5_crit4.pdf"), 
+       patch.crit4.taxa.annote, device = pdf,
+       units = "in", width = 8, height = 11)
+
+ggsave(here("out", "fig6_crit4.pdf"), 
+       patch.crit4.ffg.annote, device = pdf,
+       units = "in", width = 8, height = 11)
 ###ancovas###--------------------
 
 #ancovas for Tp corrected by taxa

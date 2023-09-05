@@ -27,7 +27,23 @@ invert_group <- read_csv(here("data", "metadata_bugs.csv")) %>%
   rename(taxon_code = taxon)
 
 # C/N SI data
-isodat <- read_csv(here("data", "sia_inverts_compiled.csv")) 
+isodat <- read_csv(here("data", "sia_inverts_compiled.csv")) %>% 
+  mutate(taxon_code = if_else(taxon_code == "BNT",
+                              true = "Brown Trout",
+                              false = if_else(taxon_code == "CKC",
+                                              true = "Creek Chub", 
+                                              false = if_else(taxon_code == "LND",
+                                                              true = "Longnose Dace",
+                                                              false = if_else(taxon_code == "LNS",
+                                                                              true = "Longnose Sucker",
+                                                                              false = if_else(taxon_code == "WHS",
+                                                                                              true = "White Sucker",
+                                                                                              false = taxon_code)
+                                                                              )
+                                                              )
+                                              )
+                              )
+         )
 
 # longitudinal gradient proxy from PCA (Maitland 2020)
 PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>% 

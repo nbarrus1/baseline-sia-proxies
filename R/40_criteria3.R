@@ -9,7 +9,7 @@
 
 # by fishes
 p5 <- alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
   # filter(compartment=="fish") |> 
   ggplot(aes(PC1, d15N, fill = taxon_code)) + 
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
@@ -163,10 +163,10 @@ plot_sigcorr <- function(df, x_cat, alpha = 0.05) {
     )
 }
 
-p5 <- mods_ffg|>plot_sigcorr(x_cat = ffg)+labs(x = "Feeding Group")
-p6 <- mods_taxa|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Taxonomic Group")
-p7 <- mods_fish|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Fish Species")
-p8 <- mods_baseline|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Basal Resource")
+#p5 <- mods_ffg|>plot_sigcorr(x_cat = ffg)+labs(x = "Feeding Group")
+#p6 <- mods_taxa|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Taxonomic Group")
+#p7 <- mods_fish|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Fish Species")
+#p8 <- mods_baseline|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Basal Resource")
 
 
 temp <- mods_fish %>% unnest(glance)
