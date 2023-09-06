@@ -34,12 +34,15 @@ focusffg <- as.factor(invertdata$ffg) %>% levels()
 
 # by taxa
 Distr_dat <- invertdata |> 
+  filter(taxon_code == "Hydropyschidae") |>
   distinct(site_id, taxon_code) |> 
   mutate(presence = 1) |> 
   group_by(taxon_code) |> 
   summarise(distr = (sum(presence)/n_sites)*100) %>%
   left_join(invert_group, by = "taxon_code") |> 
   rename(group = ffg)
+
+#hydropyschidae, 
 
 # by ffg
 Distr_dat_FFG <- invertdata %>%

@@ -60,25 +60,23 @@ p33 <- diet |>
     axis.ticks.length = unit(.25, "cm"), 
     panel.grid.minor.x = element_blank(), 
     plot.margin = unit(c(0,0,0,0), "cm")
-  )
+  )+
+  guides(fill = guide_legend(override.aes = list(size=5)))
 
-ggsave(here("out", "fig4_stomachcontent.png"), 
-       p33, device = ragg::agg_png,
+ggsave(here("out", "fig4_stomachcontent.pdf"), 
+       p33, device = pdf,
        units = "in", width = 9
        , height = 5)
 
 
-diet_ancova <- diet |>
-  group_by(taxon_code) |> 
+diet_reg <- diet |> 
+  group_by(taxon_code,food_group) |> 
   nest() |> 
-  mutate(
-    fit_pc1 = map(data, ~ lm(IRI_100 ~ PC1*food_group, data = .x)),
-    tidy = map(fit_pc1, tidy),
-    glance = map(fit_pc1, glance),
-    augment = map(fit_pc1, augment),
-    conf_int = map(fit_pc1, ~ confint(.x, parm = 2)))
+  mutate(fit_pc1 = map(data, ~lm(IRI_100~PC1, data = .x)),
+         tidy = map(fit_pc1, tidy),
+         glance = map(fit_pc1, glance),
+         augment = map(fit_pc1, augment))
 
-geom_boxplot()
 
-temp2 <- diet_ancova |> unnest(glance)
-temp <- diet_ancova |> unnest(tidy)
+ diet_reg |> unnest(glance)
+ diet_reg |> unnest(tidy) |> mutate(p.value = round(p.value, digits = 3))
