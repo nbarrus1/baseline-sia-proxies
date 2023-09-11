@@ -21,13 +21,14 @@ library(broom)
 # bug field data
 samplelog <- read_csv(here("data", "sample_log_bugs.csv"))
 
-# taxon-ffg xref table
+# fuzzy coded taxon-ffg xref table
 invert_group <- read_csv(here("data", "metadata_bugs.csv")) %>% 
   select(taxon, ffg) %>% 
   rename(taxon_code = taxon)
 
-# C/N SI data
+# C/N SI data from Maitland (2020)
 isodat <- read_csv(here("data", "sia_inverts_compiled.csv")) %>% 
+  # rename fish to common names
   mutate(taxon_code = if_else(taxon_code == "BNT",
                               true = "Brown Trout",
                               false = if_else(taxon_code == "CKC",
@@ -39,11 +40,13 @@ isodat <- read_csv(here("data", "sia_inverts_compiled.csv")) %>%
                                                                               false = if_else(taxon_code == "WHS",
                                                                                               true = "White Sucker",
                                                                                               false = taxon_code)
-                                                                              )
-                                                              )
-                                              )
-                              )
-         )
+                                                                              )))))
+
+samplelog |> 
+  filter(sample_year==2016) |> 
+  left_join(isodat |> filter(compartment == "invert"), by = "unique_id", relationship = "many-to-many") |> 
+  View()
+
 
 # longitudinal gradient proxy from PCA (Maitland 2020)
 PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>% 
@@ -78,38 +81,52 @@ PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>%
 ## Clean and combine data --------------------------
 
 alldat <- isodat %>% 
+  # add PC1 values
   left_join(PCAdat, by = "site_id") %>% 
   # left_join(LandUsedat, by = "site_id") %>% 
+  # add ffgs to taxa
   left_join(invert_group, by = "taxon_code") %>% 
   select(
-    unique_id, sample_year, stream_name, site_id, compartment,
+    unique_id, sample_year, hitch = sample_hitch, stream_name, site_id, compartment,
     resource, taxon_code, length_mm, d15N, d13C, CN, PC1, ffg
     ) %>% 
-  filter(site_id != "LR01") %>%  # remove test site
-  filter(sample_year == "2016") %>%  # keep only 2016 data
+  filter(sample_year == "2016") %>%  # keep only 2016 data (only year bug data run)
   filter(resource %in% c("biofilm", "detritus" , "fish", "invert", "photo"))
 
 # Subset data for analysis
 invertdata <- alldat %>% 
   select(-length_mm) |> 
-  filter(compartment == "invert") %>% 
-  group_by(taxon_code) %>% 
-  mutate(n = n()) %>% 
-  ungroup() %>% 
-  filter(n >= 5)
+  filter(compartment == "invert") 
+  # group_by(taxon_code) %>% 
+  # mutate(n = n()) %>% 
+  # ungroup() %>% 
+  # filter(n >= 5)
 
-primprodat <- alldat %>% 
+# Why do we filter for n > 5 here after filtering our the inverts?
+# This effectively removes 26 samples: 
+# Corbiculidae, Odontoceridae, Orconectes, Ceratopogonidae, 
+# Amphipoda, Hydrophilidae, Oligoneuriidae
+
+
+primprodat <- alldat %>%   # bad object name
   select(-length_mm) |> 
   filter(taxon_code == "Biofilm" | taxon_code == "Seston") %>% 
-  group_by(taxon_code) %>% 
-  mutate(n = n()) %>% 
-  ungroup() %>% 
-  filter(n >= 5) %>% 
   group_by(taxon_code, site_id, PC1) %>% 
   summarise(mean_d15N = mean(d15N), .groups = "drop")
+
 
 # # fish species
 # isodat |> filter(compartment == "fish") |> arrange(site_id, taxon_code) |> 
 #   write_csv(here("data","fish.csv"))
 
+
+# Samples per taxa by site and hitch
+invertdata |> 
+  group_by(site_id, hitch, taxon_code) |> 
+  count() |> 
+  pivot_wider(id_cols = c(site_id, hitch), names_from = taxon_code, values_from = n) |> 
+  arrange(site_id, hitch) |> 
+  View()
+
+# I think the reason we are missing data from those hitches 
 
