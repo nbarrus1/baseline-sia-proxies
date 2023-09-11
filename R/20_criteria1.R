@@ -3,10 +3,11 @@
 
 ## Data --------------
 
-# obtain taxon to filter the large dataset
-focustax <- as.factor(invertdata$taxon_code) %>% levels()
-# obtain Sites id from data
-study_sites <- as.factor(invertdata$site_id) %>% levels()
+# # obtain taxon to filter the large dataset
+# focustax <- as.factor(invertdata$taxon_code) %>% levels()
+# # obtain Sites id from data
+# study_sites <- as.factor(invertdata$site_id) %>% levels()
+
 # total number of sites
 n_sites = length(study_sites)
 # obtain taxon to filter the large dataset
