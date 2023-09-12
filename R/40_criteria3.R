@@ -8,8 +8,8 @@
 ## Visualize --------------------
 
 # by fishes
-p5 <- alldat |> 
-  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
+p5 <- isodat_fish |> 
+  # filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
   # filter(compartment=="fish") |> 
   ggplot(aes(PC1, d15N, fill = taxon_code)) + 
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
@@ -21,15 +21,15 @@ p5 <- alldat |>
        x = "Longitudinal Gradient (PC1)")+
   theme_bw(base_size = 12) + 
   theme(
-    axis.line = element_line(size = .5),
+    axis.line = element_line(linewidth = .5),
     axis.ticks.length = unit(.25, "cm"), 
     panel.grid.minor.x = element_blank(), 
     plot.margin = unit(c(0,0,0,0), "cm")
   )
 
 # resources
-p6 <- alldat |> 
-  filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
+p6 <- isodat_baseline |> 
+  filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |>
   ggplot(aes(PC1, d15N, fill = taxon_code)) + 
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
@@ -47,8 +47,7 @@ p6 <- alldat |>
   )
 
 # inverts by ffg
-p7 <- invertdata |> 
-  filter(ffg != "Shredder") |>
+p7 <- isodat_bug_common |> 
   ggplot(aes(PC1, d15N, fill = ffg)) + 
   geom_smooth(aes(color = ffg), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
@@ -66,7 +65,7 @@ p7 <- invertdata |>
   )
 
 # inverts by taxa
-p8 <- invertdata_sub |> 
+p8 <- isodat_bug_common |> 
   ggplot(aes(PC1, d15N, fill = taxon_code)) + 
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
@@ -86,7 +85,7 @@ p8 <- invertdata_sub |>
 ## Fit models --------------------------
 
 # ffgs
-mods_ffg <- invertdata |> 
+mods_ffg <- isodat_bug_common |> 
   group_by(ffg) |> 
   nest() |> 
   mutate(
@@ -98,7 +97,7 @@ mods_ffg <- invertdata |>
   ) 
 
 # taxa
-mods_taxa <- invertdata_sub |> 
+mods_taxa <- isodat_bug_common |> 
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
@@ -109,8 +108,7 @@ mods_taxa <- invertdata_sub |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
   ) 
 
-mods_fish <- alldat |> 
-  filter(taxon_code %in% c("BNT", "CKC", "WHS", "LND", "LNS")) |>
+mods_fish <- isodat_fish |> 
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
@@ -121,8 +119,7 @@ mods_fish <- alldat |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 'PC1'))
   ) 
 
-mods_baseline <- alldat |> 
-  filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
+mods_baseline <- isodat_baseline |> 
   group_by(taxon_code) |> 
   nest() |> 
   mutate(
@@ -169,4 +166,4 @@ plot_sigcorr <- function(df, x_cat, alpha = 0.05) {
 #p8 <- mods_baseline|>plot_sigcorr(x_cat = taxon_code)+labs(x = "Basal Resource")
 
 
-temp <- mods_fish %>% unnest(glance)
+# temp <- mods_fish %>% unnest(glance)

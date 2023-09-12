@@ -6,8 +6,7 @@
 ###uncorrected
 
 #calculate TP
-TP_uncorrected <- alldat |> 
-  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |>
+TP_uncorrected <- isodat_fish |> 
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = d15N/discFactor,
          baseline = "uncorrected")
@@ -24,14 +23,13 @@ TP_uncorrected |>
 ###Taxa
 
 #calculate mean d15N for each baseline at each site
-taxa_correction <- invertdata_sub |>
+taxa_correction <- isodat_bug_common |>
   group_by(site_id,taxon_code)|>
   summarise(correction = mean(d15N, na.rm = T),
             correction_type = "taxa") %>% 
   rename(baseline = taxon_code)
 
-basal_taxa_correction <- alldat |>
-  filter(compartment == "baseline")|>
+basal_taxa_correction <- isodat_baseline |>
   filter(taxon_code != "macrophtye")|>
   group_by(site_id,taxon_code)|>
   summarise(correction = mean(d15N,na.rm = T),
@@ -43,14 +41,12 @@ basal_taxa_correction <- alldat |>
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
 
-TP_taxa <- alldat |>
-  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
+TP_taxa <- isodat_fish |>
   left_join(taxa_correction, by = "site_id")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2)) 
 
-TP_taxa_basal <-alldat |>
-  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
+TP_taxa_basal <- isodat_fish |>
   left_join(basal_taxa_correction, by = "site_id")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+1)) 
