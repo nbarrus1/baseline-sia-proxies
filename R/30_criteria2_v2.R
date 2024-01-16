@@ -9,6 +9,9 @@ foucusffg <- Distr_dat_FFG |> filter(distr >= 75) |> pull(ffg)
 # Only keep data from widely distributed taxa
 isodat_bug_common <- isodat_bug |> filter(taxon_code %in% focustaxon)
 
+invert_group <- invert_group |> 
+  mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
+                              false = taxon_code))
 
 ## Calculate d15N CV ----------
 
@@ -45,7 +48,7 @@ cv_ffg <- isodat_bug_common %>%
 p3 <- cv_taxa |> 
     ggplot(aes(x = fct_reorder(taxon_code, CV_d15n, median), y = CV_d15n, fill = ffg)) +
     geom_boxplot() + 
-    scale_fill_manual(values=met.brewer("Lakota", 5)) + 
+    scale_fill_manual(values=palette_ffgs) + 
     labs(y=expression('CV (' ~{delta}^15*N~')'), x="", fill="Feeding group") + 
     theme_bw(base_size = 10) + 
     theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.5))
@@ -53,8 +56,8 @@ p3 <- cv_taxa |>
 p4 <- cv_ffg |>
     ggplot(aes(x = fct_reorder(ffg, CV_d15n, median), y = CV_d15n, fill = ffg)) +
     geom_boxplot() + 
-    scale_fill_manual(values=met.brewer("Lakota", 5)) + 
-    labs(y=expression('CV (' ~{delta}^15*N~')'), x="", fill="Feeding group") + 
+  scale_fill_manual(values=palette_ffgs) + 
+  labs(y=expression('CV (' ~{delta}^15*N~')'), x="", fill="Feeding group") + 
     theme_bw(base_size = 10)+ 
     theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.5))
 
@@ -62,7 +65,7 @@ patch.cv <- p3 | p4
 patch.cv.annote <- patch.cv + 
   plot_layout(widths = c(1.75, 1))+ 
   plot_layout(guides = 'collect') & 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "a")
 patch.cv.annote
 
 # Save plot
@@ -143,15 +146,15 @@ agricolae::HSD.test(fit_ffg,'ffg',group = FALSE,console = TRUE, unbalanced = TRU
 # taxa
 
 taxa_comparisons = list(
-  c("Simulidae", "Ephemeridae"),
-  c("Simulidae", "Perlidae"),
-  c("Simulidae", "Hydropyschidae"),
-  c("Simulidae", "Gomphidae"),
-  c("Simulidae", "Leptohyphidae"),
-  c("Simulidae", "Dytiscidae"),
-  c("Simulidae", "Chironomidae"),
-  c("Simulidae", "Elmidae-larvae"),
-  c("Simulidae", "Elmidae-adult"),
+  c("Simuliidae", "Ephemeridae"),
+  c("Simuliidae", "Perlidae"),
+  c("Simuliidae", "Hydropyschidae"),
+  c("Simuliidae", "Gomphidae"),
+  c("Simuliidae", "Leptohyphidae"),
+  c("Simuliidae", "Dytiscidae"),
+  c("Simuliidae", "Chironomidae"),
+  c("Simuliidae", "Elmidae-larvae"),
+  c("Simuliidae", "Elmidae-adult"),
   c("Gomphidae", "Heptaganeidae"),
   c("Chironomidae", "Heptaganeidae"),
   c("Elmidae-larvae", "Heptaganeidae"),
@@ -165,10 +168,8 @@ p3_stats <- cv_taxa |>
   ggboxplot(x = "taxon_code", y = "log_CV", fill = "ffg") +
   stat_compare_means(comparisons = taxa_comparisons, label.y = seq(0,10.5,.75),label = "p.signif")+
   stat_compare_means(method = "anova", label.x = 1.5, label.y = 11)  +
-  labs(
-    x = "", y = "log d15N CV"
-  )+
-  scale_fill_manual(values=met.brewer("Lakota", 5)) + 
+  labs(y=expression('log [CV (' ~{delta}^15*N~')]'), x="", fill = "Feeding Group") +
+  scale_fill_manual(values=palette_ffgs) + 
   theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.5))
 
 # ffgs
@@ -188,9 +189,8 @@ p4_stats <- cv_ffg |>
   stat_compare_means(comparisons = ffg_comparisons, label.y = seq(0,4.5,.75),label = "p.signif")+
   stat_compare_means(method = "anova", label.x = 1.5, label.y = 4.5)  +
   labs(
-    x = "", y = "log d15N CV"
-  ) +
-  scale_fill_manual(values=met.brewer("Lakota", 5)) + 
+  y=expression('log [CV (' ~{delta}^15*N~')]'), x="", fill = "Feeding Group") +
+  scale_fill_manual(values=palette_ffgs) + 
   theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=.5))
 
 patch.cv.stats <- p3_stats | p4_stats
@@ -198,7 +198,7 @@ patch.cv.stats.annote <- patch.cv.stats +
   plot_layout(widths = c(2, 1))+ 
   plot_layout(guides = 'collect') &
   theme(legend.position = 'bottom') & 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "a")
 patch.cv.stats.annote
 
 # Save plot

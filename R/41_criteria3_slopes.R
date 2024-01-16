@@ -146,7 +146,6 @@ plot_slopes <- function(df){
     geom_linerange(aes(ymin = X1, ymax = X2)) +
     geom_point(size = 2, color = "black", shape = 21, show.legend = F) +
     geom_hline(yintercept = 0, color = "black", linewidth = .75, linetype = "dashed") +
-    scale_fill_viridis_d()+
     coord_flip()+
     scale_y_continuous(limits = c(-.1,2), breaks = seq(0,2,.5))+
     labs(y = "") + 
@@ -168,20 +167,24 @@ p9 <- plot_data[[1]]|>
   filter(taxon_code != "Shredder")|>
   plot_slopes()+
   labs(x = "Feeding Group",
-       y = NULL)
+       y = NULL)+
+  scale_fill_manual(values = palette_ffgs)
   
 p10 <- plot_data[[2]]|>
   plot_slopes()+
   labs(x = "Taxonomic Group",
-       y = NULL)
+       y = NULL)+
+  scale_fill_manual(values = palette_taxon)
 
 p11 <- plot_data[[3]]|>plot_slopes()+
   labs(x = "Fish Species",
-       y = expression('slope ('~{beta}[1]~')'))
+       y = expression('slope ('~{beta}[1]~')'))+
+  scale_fill_manual(values = palette_fish)
 
 p12 <- plot_data[[4]]|>plot_slopes()+
   labs(x = "Basal Resource",
-       y = NULL)
+       y = NULL)+
+  scale_fill_manual(values = palette_taxon)
 
 
 
@@ -189,8 +192,15 @@ patch.crit3 <- p12+p6+p10+p8+p9+p7+p11+p5
 
 patch.crit3.annote <- patch.crit3+
   plot_layout(ncol = 2,widths = c(1,2))& 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "a")
 
-ggsave(here("out", "fig3_crit3.png"), 
-       patch.crit3.annote, device = ragg::agg_png,
-       units = "in", width = 8, height = 10)
+path <- here::here("out", "criteria-3-d15nvspc1")
+ggsave(glue::glue("{path}.pdf"), plot = patch.crit3.annote, 
+       width = 4, height = 5, scale = 2.5, device = cairo_pdf)
+pdftools::pdf_convert(pdf = glue::glue("{path}.pdf"),
+                      filenames = glue::glue("{path}.png"),
+                      format = "png", dpi = 300)
+
+#ggsave(here("out", "fig3_crit3.png"), 
+#       patch.crit3.annote, device = ragg::agg_png,
+#       units = "in", width = 8, height = 10)

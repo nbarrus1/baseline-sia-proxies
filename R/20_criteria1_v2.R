@@ -15,6 +15,9 @@ study_sites <- as.factor(isodat_bug$site_id) %>% levels()
 # total number of sites
 n_sites = length(study_sites)
 
+invert_group <- invert_group |> 
+  mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
+                              false = taxon_code))
 
 ## Calculate occupancy (distributions) ------------------------------------
 
@@ -38,8 +41,11 @@ Distr_dat_FFG <- isodat_bug %>%
   summarise(distr = (sum(presence)/n_sites)*100)|> 
   mutate(group = ffg)
 
+ffg_names <- c("uncorrected",levels(as.factor(isodat_bug$ffg)), "Average Basal","Average Invert")
+my_pallette <- alphabet()
+palette_ffgs <- setNames(object = my_pallette[1:length(ffg_names)], nm = ffg_names)
 
-# plot function
+  # plot function
 plot_dist <- function(df, x_cat){
   df |>
     ggplot(aes(x = fct_reorder({{ x_cat }}, distr, median), y = distr, fill = group)) +
@@ -48,7 +54,7 @@ plot_dist <- function(df, x_cat){
     geom_hline(yintercept = 75, color = "black", linewidth = .75, linetype = "dashed") +
     coord_flip()+
     scale_y_continuous(limits = c(0,102), breaks = seq(0,102,25), expand = c(0,0)) +
-    scale_fill_manual(values=met.brewer("Lakota", 6)) + 
+    scale_fill_manual(values=palette_ffgs) + 
     labs(y = "", fill = "Feeding Group") +
     theme_bw(8) +
     theme(
@@ -68,7 +74,7 @@ patch.dist <- p1 / p2
 patch.dist.annote <- patch.dist + 
   plot_layout(heights = c(5, 1)) + 
   plot_layout(guides = 'collect') & 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "a")
 patch.dist.annote
 
 

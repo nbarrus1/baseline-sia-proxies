@@ -1,3 +1,4 @@
+rm(list = ls())
 
 # libraries
 library(tidyverse)
@@ -6,6 +7,8 @@ library(patchwork)
 library(broom)
 library(MetBrewer)
 library(ggpubr)
+library(pals)
+library(scales)
 
 ## Data
 
@@ -31,9 +34,16 @@ isodat <- read_csv(here("data", "maitland_2020_SI_data.csv")) |>
 
 
 # Subset tables for main groups
-isodat_bug <- isodat |> filter(resource %in% c("invert"))
-isodat_fish <-  isodat |> filter(resource %in% c("fish")) |> filter(taxon_code %in% c("BNT","CKC","LND","LNS","WHS"))
-isodat_baseline <-  isodat |> filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston"))
+isodat_bug <- isodat |> filter(resource %in% c("invert")) 
+
+isodat_fish <-  isodat |> filter(resource %in% c("fish")) |> filter(taxon_code %in% c("BNT","CKC","LND","LNS","WHS")) |> 
+  mutate(taxon_code = case_when(taxon_code == "BNT" ~ "brown trout",
+                                taxon_code == "CKC" ~ "creek chub",
+                                taxon_code == "LND" ~ "longnose dace",
+                                taxon_code == "LNS" ~ "longnose sucker",
+                                taxon_code == "WHS" ~ "white sucker"))
+isodat_baseline <-  isodat |> filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
+  mutate(taxon_code = if_else(taxon_code == "filimentous", true = "filamentous",false = taxon_code))
 
 # Merge bug isotope data to sample log, PC1, and ffgs
 isodat_bug <- samplelog |> 
@@ -46,7 +56,9 @@ isodat_bug <- samplelog |>
   filter(taxon_code != "UNKN") |> 
   filter(! str_detect(ffg, "terrestrial")) |>
   mutate(compartment = if_else(is.na(compartment), "invert", compartment)) |> 
-  arrange(site_id, sample_hitch, taxon_code)
+  arrange(site_id, sample_hitch, taxon_code)|> 
+  mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
+                              false = taxon_code))
 
 # Merge PC1 values to fish and baseline tables
 isodat_fish <- isodat_fish |> left_join(PCAdat, by = "site_id") 
@@ -54,4 +66,5 @@ isodat_baseline <- isodat_baseline |> left_join(PCAdat, by = "site_id")
 
 # Save prepared data for analysis
 # save(isodat_bug, isodat_fish, isodat_baseline, file = here("data","data_analysis.Rdata"))
+
 

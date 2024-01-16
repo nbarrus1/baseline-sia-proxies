@@ -36,18 +36,18 @@ basal_taxa_correction <- isodat_baseline |>
             correction_type = "taxa") %>% 
   rename(baseline = taxon_code)
 
-  
+
 
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
 
 TP_taxa <- isodat_fish |>
-  left_join(taxa_correction, by = "site_id")|>
+  left_join(taxa_correction, by = "site_id", relationship = "many-to-many")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2)) 
 
 TP_taxa_basal <- isodat_fish |>
-  left_join(basal_taxa_correction, by = "site_id")|>
+  left_join(basal_taxa_correction, by = "site_id", relationship = "many-to-many")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+1)) 
 
@@ -65,32 +65,39 @@ TP_taxa |>
 ###ffg
 
 #calculate mean d15N for each baseline at each site
-ffg_correction <- invertdata |>
+ffg_correction <- isodat_bug |>
   filter(ffg != "Shredder")|>
   group_by(site_id,ffg)|>
   summarise(correction = mean(d15N, na.rm = T),
             correction_type = "ffg") %>% 
   rename(baseline = ffg)
 
-bulk_basal_correction <- alldat |>
+bulk_basal_correction <- isodat_baseline |>
   filter(compartment == "baseline")|>
   filter(taxon_code != "macrophtye")|>
   group_by(site_id)|>
   summarise(correction = mean(d15N,na.rm = T),
             correction_type = "ffg",
-            baseline = "Bulk Basal") 
+            baseline = "Average Basal")
+
+bulk_invert_correction <- isodat_bug |> 
+  group_by(site_id)|>
+  summarise(correction = mean(d15N,na.rm = T),
+            correction_type = "ffg",
+            baseline = "Average Invert")
+
+ffg_correction <- ffg_correction |> 
+  bind_rows(bulk_invert_correction)
 
 #use mean d15N of the baseline (taxa) at each site to calculate corrected 
 #Trophic positions
-TP_ffg <- alldat |>
-  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
-  left_join(ffg_correction, by = "site_id")|>
+TP_ffg <- isodat_fish |> 
+  left_join(ffg_correction, by = "site_id", relationship = "many-to-many")|>
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+2))
 
-TP_bulk_basal <- alldat |>
-  filter(taxon_code %in% c("Brown Trout", "Creek Chub", "White Sucker", "Longnose Dace", "Longnose Sucker")) |> 
-  left_join(bulk_basal_correction, by = "site_id")|>
+TP_bulk_basal <- isodat_fish |>
+  left_join(bulk_basal_correction, by = "site_id", relationship = "many-to-many")|> 
   mutate(discFactor = ((-0.281*d15N)+5.879),
          TP = (((d15N-correction)/discFactor)+1))
 
@@ -151,6 +158,7 @@ mods_corrected_taxa <- TP_taxa |>
 temp <- mods_corrected_ffg |> unnest(glance)
 mods_corrected_taxa|> unnest(glance)
 
+mods_corrected_taxa$conf_int
 ###slope plots####
 
 dfs_crit4 <- list(mods_corrected_ffg,mods_corrected_taxa)
@@ -165,7 +173,6 @@ plot_slopes_TP <- function(df){
     geom_linerange(aes(ymin = X1, ymax = X2)) +
     geom_point(size = 2, color = "black", shape = 21, show.legend = F) +
     geom_hline(yintercept = 0, color = "black", linewidth = .75, linetype = "dashed") +
-    scale_fill_viridis_d()+
     coord_flip()+
     scale_y_continuous(limits = c(-.7,.7), breaks = seq(-.7,.7,.35))+
     labs(y = NULL) + 
@@ -181,50 +188,60 @@ plot_slopes_TP <- function(df){
 }
 
 ###ffg plots
-p13 <- plot_data_crit4[[1]]|>filter(taxon_code == "Brown Trout")|>
+p13 <- plot_data_crit4[[1]]|>filter(taxon_code == "brown trout")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Feeding Group")
-p14 <- plot_data_crit4[[1]]|>filter(taxon_code == "Creek Chub")|>
+  labs(x = "Feeding Group")+
+  scale_fill_manual(values = palette_ffgs)
+p14 <- plot_data_crit4[[1]]|>filter(taxon_code == "creek chub")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Feeding Group")
-p15 <- plot_data_crit4[[1]]|>filter(taxon_code == "Longnose Dace")|>
+  labs(x = "Feeding Group")+
+  scale_fill_manual(values = palette_ffgs)
+p15 <- plot_data_crit4[[1]]|>filter(taxon_code == "longnose dace")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Feeding Group")
-p16 <- plot_data_crit4[[1]]|>filter(taxon_code == "Longnose Sucker")|>
+  labs(x = "Feeding Group")+
+  scale_fill_manual(values = palette_ffgs)
+p16 <- plot_data_crit4[[1]]|>filter(taxon_code == "longnose sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Feeding Group")
-p17 <- plot_data_crit4[[1]]|>filter(taxon_code == "White Sucker")|>
+  labs(x = "Feeding Group")+
+  scale_fill_manual(values = palette_ffgs)
+p17 <- plot_data_crit4[[1]]|>filter(taxon_code == "white sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Feeding Group",
-       y = expression('slope ('~{beta}[1]~')'))
+       y = expression('slope ('~{beta}[1]~')'))+
+  scale_fill_manual(values = palette_ffgs)
 
 #taxa plots
-p18 <- plot_data_crit4[[2]]|>filter(taxon_code == "Brown Trout")|>
+p18 <- plot_data_crit4[[2]]|>filter(taxon_code == "brown trout")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Taxonomic Group")
-p19 <- plot_data_crit4[[2]]|>filter(taxon_code == "Creek Chub")|>
+  labs(x = "Taxonomic Group")+
+  scale_fill_manual(values = palette_taxon)
+p19 <- plot_data_crit4[[2]]|>filter(taxon_code == "creek chub")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Taxonomic Group")
-p20 <- plot_data_crit4[[2]]|>filter(taxon_code == "Longnose Dace")|>
+  labs(x = "Taxonomic Group")+
+  scale_fill_manual(values = palette_taxon)
+p20 <- plot_data_crit4[[2]]|>filter(taxon_code == "longnose dace")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Taxonomic Group")
-p21 <- plot_data_crit4[[2]]|>filter(taxon_code == "Longnose Sucker")|>
+  labs(x = "Taxonomic Group")+
+  scale_fill_manual(values = palette_taxon)
+p21 <- plot_data_crit4[[2]]|>filter(taxon_code == "longnose sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
-  labs(x = "Taxonomic Group")
-p22 <- plot_data_crit4[[2]]|>filter(taxon_code == "White Sucker")|>
+  labs(x = "Taxonomic Group")+
+  scale_fill_manual(values = palette_taxon)
+p22 <- plot_data_crit4[[2]]|>filter(taxon_code == "white sucker")|>
   plot_slopes_TP()+
   facet_wrap(~taxon_code)+
   labs(x = "Taxonomic Group",
-       y = expression('slope ('~{beta}[1]~')'))
+       y = expression('slope ('~{beta}[1]~')'))+
+  scale_fill_manual(values = palette_taxon)
 
 ######scatter plots to show data
 
@@ -255,9 +272,7 @@ df |>
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
   scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
   #scale_y_continuous(limits = c(1, 8.3), breaks = seq(0,8,2))+
-  facet_wrap(~taxon_code)+
-  scale_color_viridis_d()+ 
-  scale_fill_viridis_d()+
+  facet_wrap(~taxon_code)+  
   labs(fill = "Taxonomic Group", y = "TP",
        x = NULL)+
   theme_bw(base_size = 12) + 
@@ -270,70 +285,74 @@ df |>
 }
 
 #ffg scatters
-p23 <- TP_ffg_plot |> filter(taxon_code == "Brown Trout") |>plot_TP_scatter()
-p24 <- TP_ffg_plot |> filter(taxon_code == "Creek Chub") |>plot_TP_scatter()
-p25 <- TP_ffg_plot |> filter(taxon_code == "Longnose Dace") |>plot_TP_scatter()
-p26 <- TP_ffg_plot |> filter(taxon_code == "Longnose Sucker") |>plot_TP_scatter()
-p27 <- TP_ffg_plot |> filter(taxon_code == "White Sucker") |>plot_TP_scatter()+
-  labs(x = "PC1")
+p23 <- TP_ffg_plot |> filter(taxon_code == "brown trout") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_ffgs) + 
+  scale_fill_manual(values=palette_ffgs) 
+p24 <- TP_ffg_plot |> filter(taxon_code == "creek chub") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_ffgs) + 
+  scale_fill_manual(values=palette_ffgs) 
+p25 <- TP_ffg_plot |> filter(taxon_code == "longnose dace") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_ffgs) + 
+  scale_fill_manual(values=palette_ffgs) 
+p26 <- TP_ffg_plot |> filter(taxon_code == "longnose sucker") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_ffgs) + 
+  scale_fill_manual(values=palette_ffgs) 
+p27 <- TP_ffg_plot |> filter(taxon_code == "white sucker") |>plot_TP_scatter()+
+  labs(x = "PC1")+
+  scale_color_manual(values=palette_ffgs) + 
+  scale_fill_manual(values=palette_ffgs) 
 
 ###taxa scatters
 
-p28 <- TP_taxa_plot |> filter(taxon_code == "Brown Trout") |>plot_TP_scatter()
-p29 <- TP_taxa_plot |> filter(taxon_code == "Creek Chub") |>plot_TP_scatter()
-p30 <- TP_taxa_plot |> filter(taxon_code == "Longnose Dace") |>plot_TP_scatter()
-p31 <- TP_taxa_plot |> filter(taxon_code == "Longnose Sucker") |>plot_TP_scatter()
-p32 <- TP_taxa_plot |> filter(taxon_code == "White Sucker") |>plot_TP_scatter()+
-  labs(x = "PC1")
+p28 <- TP_taxa_plot |> filter(taxon_code == "brown trout") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_taxon) + 
+  scale_fill_manual(values=palette_taxon) 
+p29 <- TP_taxa_plot |> filter(taxon_code == "creek chub") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_taxon) + 
+  scale_fill_manual(values=palette_taxon) 
+p30 <- TP_taxa_plot |> filter(taxon_code == "longnose dace") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_taxon) + 
+  scale_fill_manual(values=palette_taxon) 
+p31 <- TP_taxa_plot |> filter(taxon_code == "longnose sucker") |>plot_TP_scatter()+
+  scale_color_manual(values=palette_taxon) + 
+  scale_fill_manual(values=palette_taxon) 
+p32 <- TP_taxa_plot |> filter(taxon_code == "white sucker") |>plot_TP_scatter()+
+  labs(x = "PC1")+
+  scale_color_manual(values=palette_taxon) + 
+  scale_fill_manual(values=palette_taxon) 
 
 patch.crit4.taxa <- p18+p28+p19+p29+p20+p30+p21+p31+p22+p32
 patch.crit4.ffg <- p13+p23+p14+p24+p15+p25+p16+p26+p17+p27
 
 patch.crit4.taxa.annote <- patch.crit4.taxa+
   plot_layout(ncol = 2,widths = c(2,3))& 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "a")
 patch.crit4.taxa.annote
 
 patch.crit4.ffg.annote <- patch.crit4.ffg+
   plot_layout(ncol = 2,widths = c(2,3))& 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "a")
 patch.crit4.ffg.annote
 
-ggsave(here("out", "fig5_crit4.pdf"), 
-       patch.crit4.taxa.annote, device = pdf,
-       units = "in", width = 8, height = 11)
 
-ggsave(here("out", "fig6_crit4.pdf"), 
-       patch.crit4.ffg.annote, device = pdf,
-       units = "in", width = 8, height = 11)
-###ancovas###--------------------
+path <- here::here("out", "criteria-4-taxonomic_groups")
+ggsave(glue::glue("{path}.pdf"), plot = patch.crit4.taxa.annote, 
+       width = 4, height = 6, scale = 2.5, device = cairo_pdf)
+pdftools::pdf_convert(pdf = glue::glue("{path}.pdf"),
+                      filenames = glue::glue("{path}.png"),
+                      format = "png", dpi = 300)
+#ggsave(here("out", "fig5_crit4.pdf"), 
+#       patch.crit4.taxa.annote, device = pdf,
+#       units = "in", width = 8, height = 11)
 
-#ancovas for Tp corrected by taxa
 
-ancovataxa <- TP_taxa |> 
-  group_by(taxon_code) |> 
-  nest() |> 
-  mutate(
-    fit_pc1 = map(data, ~ lm(TP_corrected ~ PC1*baseline, data = .x)),
-    tidy = map(fit_pc1, tidy),
-    glance = map(fit_pc1, glance),
-    augment = map(fit_pc1, augment),
-    conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
-  ) 
+path <- here::here("out", "criteria-4-feeding_grups")
+ggsave(glue::glue("{path}.pdf"), plot = patch.crit4.ffg.annote, 
+       width = 4, height = 6, scale = 2.5, device = cairo_pdf)
+pdftools::pdf_convert(pdf = glue::glue("{path}.pdf"),
+                      filenames = glue::glue("{path}.png"),
+                      format = "png", dpi = 300)
 
-ancova_taxa |> unnest(glance)
-
-#ancovas for Tp corrected by ffg
-
-ancova_ffg <- TP_ffg |> 
-  group_by(taxon_code) |> 
-  nest() |> 
-  mutate(
-    fit_pc1 = map(data, ~ lm(TP_corrected ~ PC1*baseline, data = .x)),
-    tidy = map(fit_pc1, tidy),
-    glance = map(fit_pc1, glance),
-    augment = map(fit_pc1, augment),
-    conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
-  ) 
-
-temp <- ancova_ffg |> unnest(tidy)
+#ggsave(here("out", "fig6_crit4.pdf"), 
+#       patch.crit4.ffg.annote, device = pdf,
+#       units = "in", width = 8, height = 11)
