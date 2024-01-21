@@ -3,6 +3,11 @@
 # do the different potential baselines responded similarly to PC1 changes?
 
 # Plot model outputs for all the groups
+fish_names <- c("uncorrected",levels(as.factor(isodat_fish$taxon_code)))
+taxon_names <- c("uncorrected",levels(as.factor(isodat_baseline$taxon_code)),levels(as.factor(isodat_bug_common$taxon_code)))
+
+palette_fish <- setNames(object = my_pallette[1:length(fish_names)], nm = fish_names)
+palette_taxon <-setNames(object = my_pallette[1:length(taxon_names)], nm = taxon_names)
 
 
 ## Visualize --------------------
@@ -15,8 +20,8 @@ p5 <- isodat_fish |>
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
   scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
-  scale_color_viridis_d()+ 
-  scale_fill_viridis_d()+
+  scale_fill_manual(values=palette_fish) + 
+  scale_color_manual(values=palette_fish) + 
   labs(fill = "Fish Species", y = expression(' '~{delta}^15*N~' '),
        x = "Longitudinal Gradient (PC1)")+
   theme_bw(base_size = 12) + 
@@ -34,8 +39,8 @@ p6 <- isodat_baseline |>
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
   scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
-  scale_color_viridis_d()+ 
-  scale_fill_viridis_d()+
+  scale_fill_manual(values=palette_taxon) + 
+  scale_color_manual(values=palette_taxon) + 
   labs(fill = "Basal Resource", y = expression(' '~{delta}^15*N~' '),
        x = NULL)+
   theme_bw(base_size = 12) + 
@@ -52,8 +57,8 @@ p7 <- isodat_bug_common |>
   geom_smooth(aes(color = ffg), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
   scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
-  scale_color_viridis_d()+ 
-  scale_fill_viridis_d()+
+  scale_fill_manual(values=palette_ffgs) + 
+  scale_color_manual(values=palette_ffgs) + 
   labs(fill = "Feeding Group", y = expression(' '~{delta}^15*N~' '),
        x = NULL)+
   theme_bw(base_size = 12) + 
@@ -70,8 +75,8 @@ p8 <- isodat_bug_common |>
   geom_smooth(aes(color = taxon_code), method = "lm", se = FALSE, show.legend = F)+
   geom_point(size = 2, color = "black", shape = 21, show.legend = F) + 
   scale_x_continuous(limits = c(1.4, 10), breaks = seq(0,10,2))+
-  scale_color_viridis_d()+ 
-  scale_fill_viridis_d()+
+  scale_fill_manual(values=palette_taxon) + 
+  scale_color_manual(values=palette_taxon) + 
   labs(fill = "Taxonomic Group", y = expression(' '~{delta}^15*N~' '),
        x = NULL)+
   theme_bw(base_size = 12) + 
