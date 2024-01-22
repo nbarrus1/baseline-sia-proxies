@@ -9,9 +9,9 @@ foucusffg <- Distr_dat_FFG |> filter(distr >= 75) |> pull(ffg)
 # Only keep data from widely distributed taxa
 isodat_bug_common <- isodat_bug |> filter(taxon_code %in% focustaxon)
 
-invert_group <- invert_group |> 
-  mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
-                              false = taxon_code))
+# invert_group <- invert_group |> 
+#   mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
+#                               false = taxon_code))
 
 ## Calculate d15N CV ----------
 
@@ -24,7 +24,7 @@ cv_taxa <- isodat_bug_common %>%
     CV_d15n = sd_d15n/mean_d15n,
     .groups = 'drop'
   ) |> 
-  left_join(invert_group, by = "taxon_code") |> 
+  left_join(isodat_bug |> select(taxon_code, ffg), by = "taxon_code") |> 
   arrange(ffg, taxon_code) |> 
   drop_na(CV_d15n)|>
   mutate(log_CV = log(CV_d15n))
@@ -77,7 +77,9 @@ pdftools::pdf_convert(pdf = glue::glue("{path}.pdf"),
                       format = "png", dpi = 300)
 
 ## Compare CVs  ------------------------------
+
 ### Taxa -----------------------------------------
+
 # normality
 cv_taxa |> ggplot(aes(CV_d15n)) + geom_density()
 cv_taxa |> ggplot(aes(log_CV)) + geom_density()
@@ -111,6 +113,7 @@ agricolae::HSD.test(fit_taxa,'taxon_code',group = FALSE,console = TRUE, unbalanc
 
 
 ### FFGs -------------------------------------------
+
 #  check normality
 cv_ffg |> ggplot(aes(CV_d15n)) + geom_density()
 cv_ffg |> ggplot(aes(log_CV)) + geom_density()
@@ -144,7 +147,6 @@ agricolae::HSD.test(fit_ffg,'ffg',group = FALSE,console = TRUE, unbalanced = TRU
 ### Visualize model results------------
 
 # taxa
-
 taxa_comparisons = list(
   c("Simuliidae", "Ephemeridae"),
   c("Simuliidae", "Perlidae"),
