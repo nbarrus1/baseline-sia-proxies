@@ -4,33 +4,6 @@
 # Plot model outputs for all the groups
 
 
-## Visualize --------------------
-
-# by fishes
-isodat_fish |> 
-  ggplot(aes(PC1, d15N, color = taxon_code)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
-
-# resources
-isodat_baseline |> 
-  ggplot(aes(PC1, d15N, color = taxon_code)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
-
-# inverts by ffg
-isodat_bug_common |> 
-  ggplot(aes(PC1, d15N, color = ffg)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
-
-# inverts by taxa
-isodat_bug_common |> 
-  ggplot(aes(PC1, d15N, color = taxon_code)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE) 
-
-
 ## Fit models --------------------------
 
 # ffgs
@@ -57,8 +30,9 @@ mods_taxa <- isodat_bug_common |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 2))
   ) 
 
+# fish
 mods_fish <- isodat_fish |> 
-  group_by(taxon_code) |> 
+  group_by(common_name) |> 
   nest() |> 
   mutate(
     fit_pc1 = map(data, ~ lm(d15N ~ PC1, data = .x)),
@@ -68,6 +42,7 @@ mods_fish <- isodat_fish |>
     conf_int = map(fit_pc1, ~ confint(.x, parm = 'PC1'))
   ) 
 
+# baselines
 mods_baseline <- isodat_baseline |> 
   group_by(taxon_code) |> 
   nest() |> 
@@ -86,12 +61,12 @@ temp$conf_int
 
 ## Plot ---------
 
-temp <- mods_ffg |>
-  unnest(tidy)|>
-  unnest(conf_int)|>
-  filter(term == "PC1")
-
-temp1 <- data.frame((unlist(temp$conf_int)))
+# temp <- mods_ffg |>
+#   unnest(tidy)|>
+#   unnest(conf_int)|>
+#   filter(term == "PC1")
+# 
+# temp1 <- data.frame((unlist(temp$conf_int)))
 
 get_cis <- function(data) {
   temp <- data |> 
@@ -102,29 +77,29 @@ get_cis <- function(data) {
   print(out)
 }
 
-get_cis(mods_ffg)
-get_cis(mods_baseline)
+# get_cis(mods_ffg)
+# get_cis(mods_baseline)
 
 dfs <- list(mods_ffg, mods_taxa, mods_fish, mods_baseline)
 cis <- map(dfs, get_cis)
 str(cis)
 
-mods_ffg |> 
-  bind_cols(cis[[1]]) |> 
-  unnest(tidy)|> 
-  filter(term == "PC1") |> 
-  ggplot(aes(x = fct_reorder(ffg, estimate, median), y = estimate)) +
-  geom_point(size = 2, color = "black", shape = 21) + 
-  geom_linerange(aes(ymin = X1, ymax = X2)) +
-  coord_flip()+
-  # scale_y_continuous(limits = c(0.00,1.02), breaks = seq(0.00,1.00,.25)) +
-  labs(y = "", fill = "P < 0.05") + 
-  theme_bw(base_size = 12)
-
-mods_ffg |> 
-  bind_cols(cis[[1]]) |> 
-  unnest(tidy)|> 
-  filter(term == "PC1") 
+# mods_ffg |> 
+#   bind_cols(cis[[1]]) |> 
+#   unnest(tidy)|> 
+#   filter(term == "PC1") |> 
+#   ggplot(aes(x = fct_reorder(ffg, estimate, median), y = estimate)) +
+#   geom_point(size = 2, color = "black", shape = 21) + 
+#   geom_linerange(aes(ymin = X1, ymax = X2)) +
+#   coord_flip()+
+#   # scale_y_continuous(limits = c(0.00,1.02), breaks = seq(0.00,1.00,.25)) +
+#   labs(y = "", fill = "P < 0.05") + 
+#   theme_bw(base_size = 12)
+# 
+# mods_ffg |> 
+#   bind_cols(cis[[1]]) |> 
+#   unnest(tidy)|> 
+#   filter(term == "PC1") 
 
 make_plot_df <- function(model, cis) {
   out <- model |> 
@@ -134,11 +109,11 @@ make_plot_df <- function(model, cis) {
   out
 }
 
-make_plot_df(mods_ffg, cis[[1]])
+# make_plot_df(mods_ffg, cis[[1]])
 
 plot_data <- map2(dfs, cis, make_plot_df)
-
 plot_data[[1]] <- plot_data[[1]] |> rename(taxon_code = ffg)
+plot_data[[3]] <- plot_data[[3]] |> rename(taxon_code = common_name)
 
 plot_slopes <- function(df){
   df |>
@@ -160,7 +135,7 @@ plot_slopes <- function(df){
     )
 }
 
-plot_slopes(plot_data[[2]])
+plot_slopes(plot_data[[3]])
 
 
 p9 <- plot_data[[1]]|>
@@ -176,10 +151,11 @@ p10 <- plot_data[[2]]|>
        y = NULL)+
   scale_fill_manual(values = palette_taxon)
 
-p11 <- plot_data[[3]]|>plot_slopes()+
+p11 <- plot_data[[3]] |> plot_slopes() +
   labs(x = "Fish Species",
-       y = expression('slope ('~{beta}[1]~')'))+
-  scale_fill_manual(values = palette_fish)
+       y = expression('slope ('~{beta}[1]~')')
+       )+
+  scale_fill_manual(values = palette_fish_common)
 
 p12 <- plot_data[[4]]|>plot_slopes()+
   labs(x = "Basal Resource",
@@ -193,6 +169,8 @@ patch.crit3 <- p12+p6+p10+p8+p9+p7+p11+p5
 patch.crit3.annote <- patch.crit3+
   plot_layout(ncol = 2,widths = c(1,2))& 
   plot_annotation(tag_levels = "a")
+patch.crit3.annote
+
 
 path <- here::here("out", "criteria-3-d15nvspc1")
 ggsave(glue::glue("{path}.pdf"), plot = patch.crit3.annote, 
