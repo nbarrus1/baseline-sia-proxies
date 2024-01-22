@@ -12,15 +12,15 @@
 
 # # obtain Sites id from data
 study_sites <- as.factor(isodat_bug$site_id) %>% levels()
+
 # total number of sites
 n_sites = length(study_sites)
 
-invert_group <- invert_group |> 
-  mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
-                              false = taxon_code))
+# invert_group <- invert_group |> 
+#   mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae",
+#                               false = taxon_code))
 
 ## Calculate occupancy (distributions) ------------------------------------
-
 
 # by taxa
 Distr_dat <- isodat_bug |> 
@@ -29,8 +29,8 @@ Distr_dat <- isodat_bug |>
   group_by(taxon_code) |> 
   summarise(
     total_pres = sum(presence), 
-    distr = (total_pres/n_sites)*100) %>%
-  left_join(invert_group, by = "taxon_code") |> 
+    distr = (total_pres / n_sites) * 100) |> 
+  left_join(isodat_bug |> select(taxon_code, ffg), by = "taxon_code") |> 
   rename(group = ffg)
 
 # by ffg
@@ -41,7 +41,7 @@ Distr_dat_FFG <- isodat_bug %>%
   summarise(distr = (sum(presence)/n_sites)*100)|> 
   mutate(group = ffg)
 
-ffg_names <- c("uncorrected",levels(as.factor(isodat_bug$ffg)), "Average Basal","Average Invert")
+ffg_names <- c("uncorrected",levels(as.factor(isodat_bug$ffg)), "Average Basal", "Average Invert")
 my_pallette <- alphabet()
 palette_ffgs <- setNames(object = my_pallette[1:length(ffg_names)], nm = ffg_names)
 
