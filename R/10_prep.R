@@ -1,132 +1,79 @@
-# Prepare data sets for analyses
-
 
 # libraries
 library(tidyverse)
 library(here)
 library(patchwork)
 library(broom)
+library(MetBrewer)
+library(ggpubr)
+library(pals)
+library(scales)
 
+## Data
 
-# functions
-# lower_ci <- function(mean, se, n, conf_level = 0.95){
-#   lower_ci <- mean - qt(1-((1-conf_level)/2),n-1)*se
-# }
-# upper_ci <- function(mean, se, n, conf_level = 0.95){
-#   upper_ci <- mean + qt(1-((1-conf_level)/2),n-1)*se
-# }
-
-## Data --------------------
-
-# bug field data
-samplelog <- read_csv(here("data", "sample_log_bugs.csv"))
+# longitudinal gradient variable from PCA (Maitland 2020)
+PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>% 
+  mutate(PC1 = (PC1 + 5))  # add 5 to gradient to aid interpretability
 
 # fuzzy coded taxon-ffg xref table
 invert_group <- read_csv(here("data", "metadata_bugs.csv")) %>% 
   select(taxon, ffg) %>% 
   rename(taxon_code = taxon)
 
-# C/N SI data from Maitland (2020)
-isodat <- read_csv(here("data", "sia_inverts_compiled.csv")) %>% 
-  # rename fish to common names
-  mutate(taxon_code = if_else(taxon_code == "BNT",
-                              true = "Brown Trout",
-                              false = if_else(taxon_code == "CKC",
-                                              true = "Creek Chub", 
-                                              false = if_else(taxon_code == "LND",
-                                                              true = "Longnose Dace",
-                                                              false = if_else(taxon_code == "LNS",
-                                                                              true = "Longnose Sucker",
-                                                                              false = if_else(taxon_code == "WHS",
-                                                                                              true = "White Sucker",
-                                                                                              false = taxon_code)
-                                                                              )))))
+# bug field data (all records for observed species)
+samplelog <- read_csv(here("data", "sample_log_bugs.csv")) |> 
+  filter(sample_year==2016)  |> # Keep 2016 data only
+  filter(site_id != "LR01") |>  # remove scouting site
+  filter(gear_type == "dnet")  # keep dnet data only (no hess)
 
-samplelog |> 
-  filter(sample_year==2016) |> 
-  left_join(isodat |> filter(compartment == "invert"), by = "unique_id", relationship = "many-to-many") |> 
-  View()
+# Stable isotope data for inverts, fish, and baselines
+isodat <- read_csv(here("data", "maitland_2020_SI_data.csv")) |> 
+  filter(site_id != "LR01") |>  # remove scouting site
+  filter(sample_year==2016) # Keep 2016 data only
 
 
-# longitudinal gradient proxy from PCA (Maitland 2020)
-PCAdat <- read_csv(here("data", "data_PCA_results.csv")) %>% 
-  # add 5 to gradient to aid interpretability
-  mutate(PC1 = (PC1 + 5))
+# Subset tables for main groups
+isodat_bug <- isodat |> 
+  filter(resource %in% c("invert")) 
 
-# # land use, calculated via GIS
-# LandUsedat <- read_csv(here("data", "land-use.csv"))
-# 
-# # add land use to site list / gradient
-# PCAdat <- PCAdat %>% 
-#   left_join(LandUsedat, by = "site_id")
+isodat_fish <- isodat |> 
+  filter(resource %in% c("fish")) |> 
+  filter(taxon_code %in% c("BNT","CKC","LND","LNS","WHS")) |> 
+  mutate(common_name = case_when(taxon_code == "BNT" ~ "Brown Trout",
+                                 taxon_code == "CKC" ~ "Creek Chub",
+                                 taxon_code == "LND" ~ "Longnose Dace",
+                                 taxon_code == "LNS" ~ "Longnose Sucker",
+                                 taxon_code == "WHS" ~ "White Sucker")
+         )
 
+isodat_baseline <- isodat |> 
+  filter(taxon_code %in% c("Biofilm","FBOM", "filimentous", "Seston")) |> 
+  mutate(
+    taxon_code = if_else(
+      taxon_code == "filimentous", 
+      true = "filamentous",
+      false = taxon_code)
+    )
 
-## Explore relationship between PC1 and natual land use ------------------
+# Merge bug isotope data to sample log, PC1, and ffgs
+isodat_bug <- samplelog |> 
+  select(-gear_type, -coding_id, -length_mm, -sex, -date_sorted, -taxonomist, -bug_sample_status, -bug_samp_location, -notes) |> 
+  left_join(
+    isodat_bug |> select(unique_id, compartment, taxon_code, d13C, d15N, CN), 
+    by = join_by(unique_id, taxon_code), relationship = "many-to-many") |> 
+  left_join(invert_group, by = "taxon_code") |> 
+  left_join(PCAdat, by = "site_id") |> 
+  filter(taxon_code != "UNKN") |> 
+  filter(! str_detect(ffg, "terrestrial")) |>
+  mutate(compartment = if_else(is.na(compartment), "invert", compartment)) |> 
+  arrange(site_id, sample_hitch, taxon_code)|> 
+  mutate(taxon_code = if_else(taxon_code == "Simulidae", true = "Simuliidae", false = taxon_code))
 
-# PCAdat %>% 
-#   ggplot(aes(x = PC1, y = lulc_nat*100))+
-#   geom_point(size = 3, shape = 21, color = "black", fill = "#666666")+
-#   geom_smooth(method = "lm", color = "black")+
-#   theme_classic()+
-#   labs(y = "Percent Natural Landcover",
-#        x = "PC1 (Environmental Gradient)")+
-#   geom_text(aes(label = site_id), vjust = 0, nudge_y = 1.5)+
-#   geom_text(aes(label = "r = - 0.700", x = 2.5,y = 25))+
-#   geom_text(aes(label = "p = 0.002", x = 2.5,y = 21))
-# 
-# cor.test(x = PCAdat$PC1, y = PCAdat$lulc_nat)
-# summary(lm(PCAdat$lulc_nat~PCAdat$PC1))
+# Merge PC1 values to fish and baseline tables
+isodat_fish <- isodat_fish |> left_join(PCAdat, by = "site_id") 
+isodat_baseline <- isodat_baseline |> left_join(PCAdat, by = "site_id") 
 
+# Save prepared data for analysis
+# save(isodat_bug, isodat_fish, isodat_baseline, file = here("data","data_analysis.Rdata"))
 
-## Clean and combine data --------------------------
-
-alldat <- isodat %>% 
-  # add PC1 values
-  left_join(PCAdat, by = "site_id") %>% 
-  # left_join(LandUsedat, by = "site_id") %>% 
-  # add ffgs to taxa
-  left_join(invert_group, by = "taxon_code") %>% 
-  select(
-    unique_id, sample_year, hitch = sample_hitch, stream_name, site_id, compartment,
-    resource, taxon_code, length_mm, d15N, d13C, CN, PC1, ffg
-    ) %>% 
-  filter(sample_year == "2016") %>%  # keep only 2016 data (only year bug data run)
-  filter(resource %in% c("biofilm", "detritus" , "fish", "invert", "photo"))
-
-# Subset data for analysis
-invertdata <- alldat %>% 
-  select(-length_mm) |> 
-  filter(compartment == "invert") 
-  # group_by(taxon_code) %>% 
-  # mutate(n = n()) %>% 
-  # ungroup() %>% 
-  # filter(n >= 5)
-
-# Why do we filter for n > 5 here after filtering our the inverts?
-# This effectively removes 26 samples: 
-# Corbiculidae, Odontoceridae, Orconectes, Ceratopogonidae, 
-# Amphipoda, Hydrophilidae, Oligoneuriidae
-
-
-primprodat <- alldat %>%   # bad object name
-  select(-length_mm) |> 
-  filter(taxon_code == "Biofilm" | taxon_code == "Seston") %>% 
-  group_by(taxon_code, site_id, PC1) %>% 
-  summarise(mean_d15N = mean(d15N), .groups = "drop")
-
-
-# # fish species
-# isodat |> filter(compartment == "fish") |> arrange(site_id, taxon_code) |> 
-#   write_csv(here("data","fish.csv"))
-
-
-# Samples per taxa by site and hitch
-invertdata |> 
-  group_by(site_id, hitch, taxon_code) |> 
-  count() |> 
-  pivot_wider(id_cols = c(site_id, hitch), names_from = taxon_code, values_from = n) |> 
-  arrange(site_id, hitch) |> 
-  View()
-
-# I think the reason we are missing data from those hitches 
 
