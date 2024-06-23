@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 # PDFs
 *.pdf
+
+# Docs folder
+docs/
