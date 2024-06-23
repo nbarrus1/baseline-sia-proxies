@@ -42,7 +42,7 @@ vignettes/*.pdf
 *.pdf
 
 # Docs folder
-docs/
+*docs/
 
 # Concept figure folder
 concept-fig/
