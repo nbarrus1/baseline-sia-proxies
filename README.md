@@ -2,4 +2,4 @@
 
 R code accompanying:
 
-Barrus et al. Identifying optimal baselines for stable isotope studies of stream food webs. **In preparation for consideration at *Freshwater Science*.**
+Barrus et al. "Assessing a standardized method to identify optimal baselines for trophic position estimation in stable isotope studies of stream ecosystems". Accepted at *Hydrobiologia*.
