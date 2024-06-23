@@ -43,3 +43,6 @@ vignettes/*.pdf
 
 # Docs folder
 docs/
+
+# Concept figure folder
+concept-fig/
