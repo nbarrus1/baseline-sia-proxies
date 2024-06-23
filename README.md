@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/488244394.svg)](https://zenodo.org/doi/10.5281/zenodo.12508778)
+
 # baseline-sia-proxies
 
 R code accompanying:
